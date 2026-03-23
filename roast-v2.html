@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoastMyResume — Will It Pass FAANG?</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --sky: #b8d4f5;
+  --sky2: #d4e8fa;
+  --sky3: #e8f3fd;
+  --white: #ffffff;
+  --ink: #1a1a2e;
+  --ink2: #2d2d44;
+  --muted: rgba(26,26,46,0.5);
+  --muted2: rgba(26,26,46,0.3);
+  --accent-green: #00c853;
+  --accent-red: #ff1744;
+  --accent-blue: #2979ff;
+  --card-bg: rgba(255,255,255,0.72);
+  --card-border: rgba(255,255,255,0.9);
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans: 'Instrument Sans', system-ui, sans-serif;
+  --display: 'Syne', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--sky2);
+  color: var(--ink);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ─────────────────────────────── PAGES */
+.page { display:none; }
+.page.active { display:block; }
+
+/* ─────────────────────────────── LANDING */
+#landing {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sky gradient background */
+.sky-bg {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 120% 60% at 50% 0%, #c9e0f8 0%, #b8d4f5 40%, #a8c8f0 100%);
+  z-index: -2;
+}
+
+/* Fluffy clouds */
+.clouds {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.cloud {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  filter: blur(0px);
+  opacity: 0.85;
+}
+.cloud::before, .cloud::after {
+  content: '';
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+}
+
+.c1 { width:220px; height:80px; top:8%; left:-2%; animation: drift1 60s linear infinite; }
+.c1::before { width:120px; height:100px; top:-50px; left:40px; }
+.c1::after { width:100px; height:70px; top:-30px; left:100px; }
+
+.c2 { width:180px; height:60px; top:15%; right:5%; animation: drift2 80s linear infinite; }
+.c2::before { width:100px; height:90px; top:-45px; left:30px; }
+.c2::after { width:80px; height:55px; top:-25px; left:90px; }
+
+.c3 { width:260px; height:90px; top:30%; left:60%; animation: drift1 100s linear infinite reverse; opacity:0.6; }
+.c3::before { width:140px; height:110px; top:-55px; left:50px; }
+.c3::after { width:110px; height:75px; top:-35px; left:120px; }
+
+.c4 { width:150px; height:55px; top:45%; left:10%; animation: drift2 70s linear infinite; opacity:0.5; }
+.c4::before { width:90px; height:80px; top:-40px; left:25px; }
+.c4::after { width:70px; height:50px; top:-20px; left:75px; }
+
+.c5 { width:200px; height:70px; top:55%; right:15%; animation: drift1 90s linear infinite; opacity:0.45; }
+.c5::before { width:110px; height:90px; top:-45px; left:35px; }
+.c5::after { width:90px; height:65px; top:-28px; left:95px; }
+
+@keyframes drift1 {
+  from { transform: translateX(-300px); }
+  to { transform: translateX(calc(100vw + 300px)); }
+}
+@keyframes drift2 {
+  from { transform: translateX(calc(100vw + 300px)); }
+  to { transform: translateX(-300px); }
+}
+
+/* Nav */
+nav {
+  position: relative;
+  z-index: 10;
+  padding: 1.25rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo-text {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  opacity: 0.7;
+}
+
+.nav-right { display: flex; gap: 10px; align-items: center; }
+
+.pill-btn {
+  padding: 7px 18px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(26,26,46,0.2);
+  background: rgba(255,255,255,0.5);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s;
+}
+.pill-btn:hover {
+  background: rgba(255,255,255,0.8);
+  border-color: rgba(26,26,46,0.35);
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  z-index: 5;
+  padding: 3rem 2rem 2rem;
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* Resume card floating behind headline */
+.resume-float {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  height: 440px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.18), 0 8px 20px rgba(0,0,0,0.08);
+  padding: 24px 22px;
+  z-index: -1;
+  opacity: 0.75;
+  transform: translateX(-50%) rotate(-2deg);
+}
+
+.resume-line {
+  height: 7px;
+  background: #e8e8e8;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.resume-line.short { width: 55%; }
+.resume-line.med { width: 75%; }
+.resume-line.full { width: 100%; }
+.resume-line.tiny { height: 5px; width: 40%; background: #f0f0f0; }
+.resume-line.header { height: 12px; width: 50%; background: #d0d0d0; margin: 0 auto 16px; }
+.resume-section-label { height: 6px; width: 25%; background: #c8c8c8; margin: 14px 0 10px; border-radius: 3px; }
+
+/* Highlight overlays on the floating resume */
+.hl-green {
+  background: rgba(0,200,83,0.25);
+  border-radius: 3px;
+  display: inline-block;
+}
+.hl-red {
+  background: rgba(255,23,68,0.2);
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.hero-headline {
+  font-family: var(--serif);
+  font-size: clamp(2.6rem, 6vw, 4.5rem);
+  line-height: 1.05;
+  color: var(--ink);
+  margin-bottom: 1.2rem;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 2px 20px rgba(255,255,255,0.6);
+  animation: fadeUp 0.7s 0.1s both;
+}
+
+.hero-headline em {
+  font-style: italic;
+  color: #1a3a6e;
+}
+
+.hero-sub {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.7s 0.25s both;
+}
+
+/* Company logos row */
+.company-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 2rem;
+  animation: fadeUp 0.7s 0.35s both;
+  flex-wrap: wrap;
+}
+
+.company-row span {
+  font-size: 13px;
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+.co-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.9);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink2);
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.co-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+/* Upload card */
+.upload-card {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255,255,255,0.95);
+  border-radius: 20px;
+  padding: 2rem;
+  max-width: 440px;
+  margin: 0 auto 2rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+  animation: fadeUp 0.7s 0.45s both;
+}
+
+.upload-dropzone {
+  border: 2px dashed rgba(26,26,46,0.2);
+  border-radius: 14px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(255,255,255,0.5);
+}
+.upload-dropzone:hover {
+  border-color: var(--ink2);
+  background: rgba(255,255,255,0.8);
+}
+
+.upload-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--ink);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.upload-icon svg { color: white; }
+
+.upload-title {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.upload-hint2 {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.upload-cta {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 14px;
+  background: var(--ink);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.upload-cta:hover { background: var(--ink2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,26,46,0.25); }
+
+.no-signup {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+#fileInput { display:none; }
+
+/* Trust row */
+.trust-row {
+  text-align: center;
+  animation: fadeUp 0.7s 0.6s both;
+  padding-bottom: 3rem;
+}
+.trust-stars {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.trust-sub { font-size: 12px; color: var(--muted); }
+
+/* ─────────────────────────────── API MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(20,20,40,0.6);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal-box {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 440px;
+  max-width: 92vw;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+}
+
+.modal-box h2 {
+  font-family: var(--serif);
+  font-size: 1.7rem;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+.modal-box p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 1.25rem; }
+
+.provider-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1rem;
+}
+.provider-tab {
+  flex: 1;
+  padding: 8px 6px;
+  border: 1.5px solid rgba(26,26,46,0.15);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--display);
+  cursor: pointer;
+  background: white;
+  color: var(--muted);
+  transition: all 0.15s;
+  text-align: center;
+}
+.provider-tab.active {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+
+.key-wrap { position: relative; margin-bottom: 10px; }
+.key-inp {
+  width: 100%;
+  padding: 11px 42px 11px 14px;
+  border: 1.5px solid rgba(26,26,46,0.15);
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: monospace;
+  color: var(--ink);
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.key-inp:focus { border-color: var(--ink); background: white; }
+
+.eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.modal-note-box {
+  background: #f0f7ff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 11.5px;
+  color: #2979ff;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+.modal-btns { display: flex; gap: 8px; }
+.btn-ink {
+  flex: 1;
+  padding: 12px;
+  background: var(--ink);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-ink:hover { background: #2d2d44; }
+
+.btn-outline {
+  padding: 12px 18px;
+  background: white;
+  color: var(--muted);
+  border: 1.5px solid rgba(26,26,46,0.15);
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ─────────────────────────────── LOADING */
+#loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.loading-emoji {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  animation: bounce 1s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.loading-h {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  color: var(--ink);
+  margin-bottom: 1rem;
+  line-height: 1.15;
+}
+
+.loading-msg {
+  font-family: var(--display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  height: 18px;
+  margin-bottom: 2.5rem;
+}
+
+.prog-track {
+  width: 280px;
+  height: 3px;
+  background: rgba(26,26,46,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  background: var(--ink);
+  border-radius: 3px;
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+/* ─────────────────────────────── RESULTS */
+#results { min-height: 100vh; }
+
+.results-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 1rem 2rem;
+  background: rgba(184,212,245,0.8);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* VERDICT section */
+.verdict-section {
+  padding: 4rem 2rem 3rem;
+  text-align: center;
+  position: relative;
+}
+
+.verdict-eyebrow {
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.2rem;
+}
+
+/* Chrome / metallic text effect */
+.verdict-chrome {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(4rem, 12vw, 9rem);
+  line-height: 0.9;
+  background: linear-gradient(
+    180deg,
+    #e8e8e8 0%,
+    #b8b8b8 20%,
+    #f5f5f5 40%,
+    #888 50%,
+    #f5f5f5 60%,
+    #c0c0c0 80%,
+    #e0e0e0 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+  display: block;
+  animation: shimmer-chrome 4s linear infinite;
+  background-size: 100% 200%;
+}
+
+.verdict-chrome.shortlisted {
+  background: linear-gradient(
+    180deg,
+    #d4edda 0%,
+    #8fc99a 20%,
+    #d4edda 40%,
+    #4a9e5c 50%,
+    #d4edda 60%,
+    #8fc99a 80%,
+    #d4edda 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 100% 200%;
+}
+
+.verdict-chrome.rejected {
+  background: linear-gradient(
+    180deg,
+    #ffd0d0 0%,
+    #e88 20%,
+    #ffd0d0 40%,
+    #c44 50%,
+    #ffd0d0 60%,
+    #e88 80%,
+    #ffd0d0 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 100% 200%;
+}
+
+@keyframes shimmer-chrome {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 200%; }
+}
+
+/* Score pill under verdict */
+.score-pill-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.score-pill {
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255,255,255,0.9);
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Company tabs */
+.company-tabs {
+  position: sticky;
+  top: 58px;
+  z-index: 40;
+  background: rgba(184,212,245,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.5);
+  padding: 0 2rem;
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+}
+
+.ctab {
+  padding: 14px 22px;
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  font-family: var(--display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s;
+}
+.ctab:hover { color: var(--ink); }
+.ctab.active { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* Main results layout */
+.results-body {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+/* Two-column for score + notes */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+@media(max-width:700px) {
+  .two-col { grid-template-columns: 1fr; }
+  .company-tabs { top: 52px; }
+}
+
+/* Glass card */
+.glass-card {
+  background: rgba(255,255,255,0.68);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255,255,255,0.9);
+  border-radius: 18px;
+  padding: 1.6rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+  animation: fadeUp 0.4s ease both;
+}
+
+.glass-card.full { grid-column: 1/-1; }
+
+.card-eyebrow {
+  font-family: var(--display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(26,26,46,0.1);
+}
+
+/* Percentile score */
+.pct-big {
+  font-family: var(--display);
+  font-size: 5.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.pct-label {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 1.2rem;
+}
+.pct-label strong { color: var(--ink); }
+
+/* Bar histogram */
+.histogram {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 44px;
+  margin-bottom: 1.2rem;
+}
+.hbar {
+  flex: 1;
+  border-radius: 2px 2px 0 0;
+  background: rgba(26,26,46,0.1);
+  min-height: 3px;
+  transition: background 0.3s;
+}
+.hbar.you {
+  background: var(--ink);
+  position: relative;
+}
+.hbar.you::after {
+  content: 'YOU';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  font-weight: 800;
+  font-family: var(--display);
+  color: var(--ink);
+  white-space: nowrap;
+  margin-bottom: 3px;
+}
+
+/* Sub scores */
+.sub-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+.sub-box {
+  background: rgba(26,26,46,0.04);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.sub-lbl { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.sub-val {
+  font-family: var(--display);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+.sub-val span { font-size: 13px; font-weight: 400; color: var(--muted); }
+
+/* Candidate notes */
+.note-list { display: flex; flex-direction: column; gap: 0; }
+.note-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(26,26,46,0.07);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink2);
+}
+.note-row:last-child { border-bottom: none; }
+
+.note-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+.note-dot.pos { background: rgba(0,200,83,0.15); color: var(--accent-green); }
+.note-dot.neg { background: rgba(255,23,68,0.12); color: var(--accent-red); }
+
+/* Recruiter note */
+.rec-note-box {
+  background: rgba(26,26,46,0.03);
+  border-left: 3px solid var(--ink);
+  border-radius: 0 12px 12px 0;
+  padding: 1rem 1.2rem;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1.7;
+  color: var(--ink2);
+}
+
+/* Words/Phrases section — crackedresume style */
+.two-phrases {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+@media(max-width:700px) { .two-phrases { grid-template-columns: 1fr; } }
+
+.phrase-card {
+  border-radius: 18px;
+  padding: 1.6rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.phrase-card.green-card {
+  background: rgba(200,240,215,0.7);
+  border: 1.5px solid rgba(150,220,180,0.8);
+}
+.phrase-card.red-card {
+  background: rgba(255,220,220,0.7);
+  border: 1.5px solid rgba(255,170,170,0.8);
+}
+
+.phrase-card-title {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.green-card .phrase-card-title { color: #00703a; }
+.red-card .phrase-card-title { color: #c0001a; }
+
+.phrase-card-sub {
+  font-size: 12px;
+  margin-bottom: 1.2rem;
+  line-height: 1.4;
+}
+.green-card .phrase-card-sub { color: rgba(0,80,40,0.65); }
+.red-card .phrase-card-sub { color: rgba(150,0,20,0.6); }
+
+/* Mini resume preview beside phrases */
+.phrase-with-resume {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.mini-resume {
+  flex: 1;
+  background: white;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  min-width: 0;
+}
+
+.mr-line {
+  height: 5px;
+  border-radius: 3px;
+  margin-bottom: 5px;
+  background: #eee;
+}
+.mr-line.hl-g { background: rgba(0,200,83,0.35); }
+.mr-line.hl-r { background: rgba(255,23,68,0.25); text-decoration: line-through; }
+.mr-line.w100 { width: 100%; }
+.mr-line.w80 { width: 80%; }
+.mr-line.w65 { width: 65%; }
+.mr-line.w50 { width: 50%; }
+.mr-line.w40 { width: 40%; }
+
+/* Phrase tags */
+.phrase-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 4px;
+}
+.ptag {
+  padding: 5px 11px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-family: monospace;
+  line-height: 1.3;
+}
+.ptag.g {
+  background: rgba(255,255,255,0.7);
+  color: #00703a;
+  border: 1px solid rgba(0,120,60,0.25);
+}
+.ptag.r {
+  background: rgba(255,255,255,0.7);
+  color: #c0001a;
+  border: 1px solid rgba(200,0,30,0.2);
+  text-decoration: line-through;
+  text-decoration-color: rgba(200,0,30,0.4);
+}
+
+/* PDF overlay section */
+.pdf-section {
+  margin-bottom: 1.25rem;
+}
+
+.pdf-wrapper {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+
+.pdf-canvas-wrap {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  display: inline-block;
+  width: 100%;
+}
+
+#pdfCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+#overlayLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.overlay-hl {
+  position: absolute;
+  border-radius: 2px;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.overlay-hl.strong {
+  background: rgba(0,200,83,0.22);
+  border-bottom: 2px solid rgba(0,200,83,0.7);
+}
+.overlay-hl.weak {
+  background: rgba(255,23,68,0.18);
+  border-bottom: 2px solid rgba(255,23,68,0.6);
+}
+
+/* Tooltip for overlay */
+.hl-tooltip {
+  position: absolute;
+  background: var(--ink);
+  color: white;
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--sans);
+  line-height: 1.3;
+  max-width: 200px;
+  white-space: normal;
+  text-align: center;
+}
+
+.overlay-hl:hover .hl-tooltip { opacity: 1; }
+.overlay-hl:hover { opacity: 0.85; }
+
+/* Improvements */
+.improv-list { display: flex; flex-direction: column; gap: 0; }
+.improv-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(26,26,46,0.07);
+  align-items: flex-start;
+}
+.improv-item:last-child { border-bottom: none; }
+
+.improv-num {
+  font-family: var(--display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: rgba(26,26,46,0.12);
+  line-height: 1.2;
+  min-width: 36px;
+}
+
+.improv-content { flex: 1; }
+.improv-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.improv-badge.critical { background: rgba(255,23,68,0.1); color: #c0001a; }
+.improv-badge.high { background: rgba(255,152,0,0.1); color: #e65100; }
+.improv-badge.medium { background: rgba(33,150,243,0.1); color: #0d47a1; }
+
+.improv-text { font-size: 13px; color: var(--ink2); line-height: 1.6; }
+
+/* Skeleton */
+.skel {
+  background: linear-gradient(90deg, rgba(26,26,46,0.06) 25%, rgba(26,26,46,0.03) 50%, rgba(26,26,46,0.06) 75%);
+  background-size: 200% 100%;
+  animation: skel-shimmer 1.5s infinite;
+  border-radius: 6px;
+  height: 12px;
+  margin-bottom: 8px;
+}
+@keyframes skel-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Error */
+.err-box {
+  background: rgba(255,23,68,0.08);
+  border: 1px solid rgba(255,23,68,0.25);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: #c0001a;
+  margin: 1rem 2rem;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(16px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- Sky + clouds BG -->
+<div class="sky-bg"></div>
+<div class="clouds">
+  <div class="cloud c1"></div>
+  <div class="cloud c2"></div>
+  <div class="cloud c3"></div>
+  <div class="cloud c4"></div>
+  <div class="cloud c5"></div>
+</div>
+
+<!-- ═══════════════ LANDING ═══════════════ -->
+<div id="landing" class="page active">
+  <nav>
+    <div class="logo-text">RoastMyResume</div>
+    <div class="nav-right">
+      <button class="pill-btn" onclick="openModal()">🔑 API Key</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <p class="hero-sub" style="margin-bottom:0.5rem; font-size:13px; letter-spacing:0.04em; font-weight:500;">Our AI judges it like it's the final round of Squid Game for</p>
+
+    <div class="company-row">
+      <div class="co-badge">M</div>
+      <div class="co-badge">⌘</div>
+      <div class="co-badge">A</div>
+      <div class="co-badge">G</div>
+      <div class="co-badge">N</div>
+    </div>
+
+    <h1 class="hero-headline">
+      Your Resume Has 30s to Live.<br>
+      <em>Will It Pass FAANG Recruiter?</em>
+    </h1>
+
+    <div class="upload-card">
+      <div class="upload-dropzone" onclick="triggerUpload()" id="dropzone">
+        <div class="upload-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 3v10M6 7l4-4 4 4M3 15h14" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="upload-title">Drop your resume here</div>
+        <div class="upload-hint2">PDF or TXT — processed entirely in your browser</div>
+      </div>
+      <button class="upload-cta" onclick="triggerUpload()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v9M4 5.5L8 2l4 3.5M1 13h14" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Upload Resume
+      </button>
+      <p class="no-signup">*no signup required</p>
+    </div>
+
+    <input type="file" id="fileInput" accept=".pdf,.txt" onchange="handleFile(event)">
+
+    <div class="trust-row">
+      <div class="trust-stars">#1 AI Resume Roaster ★★★★★</div>
+      <div class="trust-sub">Trusted by 1,000+ students from Berkeley, Harvard, MIT, Stanford, Georgia Tech</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ API MODAL ═══════════════ -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal-box">
+    <h2>Add Your API Key</h2>
+    <p>Your key is stored in this browser tab only (sessionStorage) and never sent to our servers.</p>
+
+    <div class="provider-tabs">
+      <div class="provider-tab active" onclick="setProvider('claude',this)">Claude</div>
+      <div class="provider-tab" onclick="setProvider('openai',this)">OpenAI</div>
+      <div class="provider-tab" onclick="setProvider('gemini',this)">Gemini</div>
+    </div>
+
+    <div class="key-wrap">
+      <input class="key-inp" type="password" id="keyInp" placeholder="sk-ant-api03-..." />
+      <button class="eye-btn" onclick="toggleEye()">👁</button>
+    </div>
+
+    <div class="modal-note-box">
+      🔒 Never stored. Erased when tab closes. Used only to call the AI API client-side.
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-ink" onclick="saveKey()">Save & Continue</button>
+      <button class="btn-outline" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ LOADING ═══════════════ -->
+<div id="loading" class="page">
+  <div class="loading-emoji" id="loadEmoji">🧠</div>
+  <h2 class="loading-h" id="loadTitle">Feeding your resume<br>to the algorithm...</h2>
+  <div class="loading-msg" id="loadMsg">INITIALIZING</div>
+  <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+</div>
+
+<!-- ═══════════════ RESULTS ═══════════════ -->
+<div id="results" class="page">
+  <div class="results-nav">
+    <div class="logo-text">RoastMyResume</div>
+    <button class="pill-btn" onclick="reset()">↩ New Resume</button>
+  </div>
+
+  <div id="errBox" style="display:none"></div>
+
+  <!-- VERDICT -->
+  <div class="verdict-section">
+    <div class="verdict-eyebrow">Your resume is getting</div>
+    <span class="verdict-chrome" id="verdictChrome">Shortlisted</span>
+    <div class="score-pill-row" id="scorePills"></div>
+  </div>
+
+  <!-- Company tabs -->
+  <div class="company-tabs" id="coTabs">
+    <button class="ctab active" data-co="Meta" onclick="switchCo(this)">Meta</button>
+    <button class="ctab" data-co="Apple" onclick="switchCo(this)">Apple</button>
+    <button class="ctab" data-co="Amazon" onclick="switchCo(this)">Amazon</button>
+    <button class="ctab" data-co="Google" onclick="switchCo(this)">Google</button>
+    <button class="ctab" data-co="Netflix" onclick="switchCo(this)">Netflix</button>
+  </div>
+
+  <!-- Results body -->
+  <div class="results-body" id="resultsBody"></div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ── STATE ──
+let resumeText = '';
+let pdfDoc = null;      // pdf.js doc object
+let pdfFile = null;
+let apiKey = sessionStorage.getItem('roast_key') || '';
+let provider = sessionStorage.getItem('roast_provider') || 'claude';
+let cache = {};
+let currentCo = 'Meta';
+
+// ── PAGES ──
+const show = id => {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+};
+
+// ── MODAL ──
+function openModal() {
+  document.getElementById('keyInp').value = apiKey;
+  document.getElementById('apiModal').classList.add('open');
+}
+function closeModal() { document.getElementById('apiModal').classList.remove('open'); }
+function toggleEye() {
+  const i = document.getElementById('keyInp');
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
+function setProvider(p, el) {
+  provider = p;
+  document.querySelectorAll('.provider-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const ph = { claude:'sk-ant-api03-...', openai:'sk-...', gemini:'AIza...' };
+  document.getElementById('keyInp').placeholder = ph[p];
+}
+function saveKey() {
+  const v = document.getElementById('keyInp').value.trim();
+  if (!v) { alert('Please enter your API key'); return; }
+  apiKey = v;
+  sessionStorage.setItem('roast_key', v);
+  sessionStorage.setItem('roast_provider', provider);
+  closeModal();
+}
+
+// ── UPLOAD ──
+function triggerUpload() {
+  if (!apiKey) { openModal(); return; }
+  document.getElementById('fileInput').click();
+}
+
+async function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  pdfFile = file;
+  show('loading');
+  startLoading();
+
+  try {
+    const buf = await file.arrayBuffer();
+    if (file.name.endsWith('.pdf') || file.type === 'application/pdf') {
+      pdfDoc = await pdfjsLib.getDocument({ data: buf.slice() }).promise;
+      let txt = '';
+      for (let i = 1; i <= pdfDoc.numPages; i++) {
+        const pg = await pdfDoc.getPage(i);
+        const tc = await pg.getTextContent();
+        txt += tc.items.map(x => x.str).join(' ') + '\n';
+      }
+      resumeText = txt;
+    } else {
+      resumeText = await file.text();
+      pdfDoc = null;
+    }
+
+    if (resumeText.length < 80) throw new Error('Could not extract text. Try a text-based PDF.');
+
+    await doAnalysis('Meta');
+    renderResults('Meta');
+    show('results');
+  } catch(err) {
+    show('results');
+    showErr(err.message || 'Something went wrong.');
+  }
+}
+
+// ── LOADING ANIMATION ──
+const loadMsgs = [
+  ['🧠','Simulating FAANG recruiter brain...','WARMING UP THE ALGORITHM'],
+  ['⚡','Running gauntlet across 5 companies...','RUNNING FAANG GAUNTLET'],
+  ['🔍','Measuring buzzword density...','ANALYZING SIGNAL VS FLUFF'],
+  ['📊','Calculating your percentile rank...','CROSS-REFERENCING CANDIDATE DB'],
+  ['💀','Identifying red flags...','FLAGGING WEAK BULLETS'],
+  ['✨','Extracting power phrases...','EXTRACTING HIRING SIGNALS'],
+];
+let loadTimer = null;
+
+function startLoading() {
+  let i = 0, prog = 0;
+  const fill = document.getElementById('progFill');
+  loadTimer = setInterval(() => {
+    const [emoji, title, msg] = loadMsgs[i % loadMsgs.length];
+    document.getElementById('loadEmoji').textContent = emoji;
+    document.getElementById('loadTitle').innerHTML = title;
+    document.getElementById('loadMsg').textContent = msg;
+    prog = Math.min(prog + Math.random()*14+4, 88);
+    fill.style.width = prog + '%';
+    i++;
+  }, 900);
+}
+function stopLoading() {
+  clearInterval(loadTimer);
+  document.getElementById('progFill').style.width = '100%';
+}
+
+// ── AI CALL ──
+async function doAnalysis(company) {
+  if (cache[company]) return;
+
+  const companyLens = {
+    Meta: "Meta values: moving fast, social scale (millions/billions of users), ML/AI integration, measurable product impact, full end-to-end system ownership.",
+    Apple: "Apple values: extreme polish, user experience obsession, hardware-software integration, privacy-first thinking, deep ownership over quality.",
+    Amazon: "Amazon values: customer obsession, ownership, delivering results, frugality, data-driven decisions, operational excellence at scale.",
+    Google: "Google values: algorithmic depth, systems at scale, data-driven product decisions, technical leadership, open-source contributions, CS fundamentals.",
+    Netflix: "Netflix values: senior engineers who work autonomously, business impact, high-performance distributed systems, judgment over process, streaming expertise."
+  };
+
+  const prompt = `You are a senior ${company} technical recruiter with 10+ years experience. You evaluate the SUBSTANCE and IMPACT of candidates — not formatting, punctuation, date formats, location specificity, text cutoffs, or cosmetic issues. Those are irrelevant.
+
+Resume:
+---
+${resumeText.slice(0,4500)}
+---
+
+Focus exclusively on:
+- Technical depth and skill credibility
+- Scale and impact of their work (users, systems, measurable outcomes)
+- Bullet quality — results vs tasks
+- Career trajectory and growth signals
+- Skills gaps ${company} specifically values
+- Whether experience matches claimed seniority
+
+STRICT RULES — violating these makes your output worthless:
+1. NEVER flag date formats, location formats, text cutoffs, or PDF artifacts
+2. NEVER invent problems that aren't real hiring concerns
+3. NEVER hallucinate missing info — only judge what is written
+4. Every strength/weakness must cite a SPECIFIC bullet, project, or role from the resume
+5. strongPhrases and weakPhrases must be EXACT short phrases copied verbatim from the resume
+6. Improvements must give a concrete rewrite — never vague advice like "add more metrics"
+
+${companyLens[company] || companyLens.Google}
+
+Return ONLY valid JSON, no markdown fences, no explanation:
+{
+  "verdict": "Shortlisted" or "On the Fence" or "Rejected",
+  "percentile": <integer 0-100, honest rank vs other ${company} applicants at this experience level>,
+  "cultureFit": <integer 0-100>,
+  "techSkills": <integer 0-100>,
+  "strengths": [
+    "<cite the specific bullet/project that proves this AND why it impresses ${company}>",
+    "<strength 2>",
+    "<strength 3>"
+  ],
+  "weaknesses": [
+    "<a real skills gap or missing signal ${company} cares about — cite where in the resume this shows>",
+    "<weakness 2>",
+    "<weakness 3>"
+  ],
+  "recruiterNote": "<3 sentences as the actual ${company} recruiter note to hiring manager. What role/team fits? Biggest hiring risk? Pass to phone screen or not?>",
+  "strongPhrases": ["<exact verbatim phrase>", "<exact verbatim phrase>", "<exact verbatim phrase>", "<exact verbatim phrase>", "<exact verbatim phrase>"],
+  "weakPhrases": ["<exact verbatim weak phrase>", "<exact verbatim weak phrase>", "<exact verbatim weak phrase>", "<exact verbatim weak phrase>"],
+  "improvements": [
+    {"priority": "CRITICAL", "issue": "<specific weak bullet or section>", "fix": "<full rewritten bullet — e.g. change 'Built search feature' to 'Reduced search p99 latency by 40% (800ms to 480ms) across 2M daily users by migrating from full-table scans to Elasticsearch with query caching'>"},
+    {"priority": "HIGH", "issue": "<problem>", "fix": "<concrete fix>"},
+    {"priority": "HIGH", "issue": "<problem>", "fix": "<concrete fix>"},
+    {"priority": "MEDIUM", "issue": "<problem>", "fix": "<concrete fix>"}
+  ]
+}`;
+
+  let res;
+  if (provider === 'claude') {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1800,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+  } else if (provider === 'openai') {
+    res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body: JSON.stringify({model:'gpt-4o',max_tokens:1800,messages:[{role:'user',content:prompt}]})
+    });
+  } else {
+    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+    });
+  }
+
+  if (!res.ok) {
+    const e = await res.json().catch(()=>({}));
+    throw new Error(e?.error?.message || `API error ${res.status}`);
+  }
+
+  const data = await res.json();
+  let raw;
+  if (provider === 'claude') raw = data.content[0].text;
+  else if (provider === 'openai') raw = data.choices[0].message.content;
+  else raw = data.candidates[0].content.parts[0].text;
+
+  const match = raw.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('Could not parse AI response. Try again.');
+  cache[company] = JSON.parse(match[0]);
+  stopLoading();
+}
+
+// ── RENDER RESULTS ──
+function renderResults(co) {
+  const d = cache[co];
+  if (!d) return;
+  currentCo = co;
+
+  // Verdict
+  const vc = document.getElementById('verdictChrome');
+  vc.textContent = d.verdict;
+  vc.className = 'verdict-chrome';
+  if (d.verdict === 'Shortlisted') vc.classList.add('shortlisted');
+  if (d.verdict === 'Rejected') vc.classList.add('rejected');
+
+  // Score pills
+  document.getElementById('scorePills').innerHTML = `
+    <div class="score-pill">${d.percentile}th percentile</div>
+    <div class="score-pill">Culture ${d.cultureFit}/100</div>
+    <div class="score-pill">Tech ${d.techSkills}/100</div>
+  `;
+
+  // Build histogram bars
+  const bars = Array.from({length:24}, (_,i) => {
+    const x = i/23;
+    const h = Math.max(8, (Math.sin(x*Math.PI)*0.7 + 0.15 + Math.random()*0.15)*100);
+    const you = Math.abs(x*100 - d.percentile) < 3;
+    return `<div class="hbar${you?' you':''}" style="height:${h}%"></div>`;
+  }).join('');
+
+  const body = document.getElementById('resultsBody');
+  body.innerHTML = '';
+
+  // ── Row 1: Score + Notes ──
+  const row1 = document.createElement('div');
+  row1.className = 'two-col';
+  row1.innerHTML = `
+    <!-- Score card -->
+    <div class="glass-card" style="animation-delay:0.05s">
+      <div class="card-eyebrow">Percentile Rank · ${co}</div>
+      <div class="pct-big" id="pctNum">0</div>
+      <div class="pct-label">Top <strong>${d.percentile}th percentile</strong> among ${co} applicants</div>
+      <div class="histogram">${bars}</div>
+      <div class="sub-row">
+        <div class="sub-box">
+          <div class="sub-lbl">Culture Fit</div>
+          <div class="sub-val">${d.cultureFit}<span>/100</span></div>
+        </div>
+        <div class="sub-box">
+          <div class="sub-lbl">Tech Skills</div>
+          <div class="sub-val">${d.techSkills}<span>/100</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes card -->
+    <div class="glass-card" style="animation-delay:0.1s">
+      <div class="card-eyebrow">Candidate Notes</div>
+      <div class="note-list">
+        ${d.strengths.map(s=>`
+          <div class="note-row">
+            <div class="note-dot pos">✓</div>
+            <span>${s}</span>
+          </div>`).join('')}
+        ${d.weaknesses.map(w=>`
+          <div class="note-row">
+            <div class="note-dot neg">✗</div>
+            <span>${w}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+  body.appendChild(row1);
+
+  // Animate percentile counter
+  animateNum('pctNum', 0, d.percentile, 1100);
+
+  // ── Recruiter note ──
+  const recCard = document.createElement('div');
+  recCard.className = 'glass-card full';
+  recCard.style.cssText = 'margin-bottom:1.25rem;animation-delay:0.15s';
+  recCard.innerHTML = `
+    <div class="card-eyebrow">How ${co} recruiters see you</div>
+    <div class="rec-note-box">${d.recruiterNote}</div>
+  `;
+  body.appendChild(recCard);
+
+  // ── Words that hire + Red flags ──
+  const phRow = document.createElement('div');
+  phRow.className = 'two-phrases';
+  phRow.innerHTML = `
+    <div class="phrase-card green-card" style="animation-delay:0.2s">
+      <div class="phrase-with-resume">
+        <div>
+          <div class="phrase-card-title">Words that<br>Hire you</div>
+          <div class="phrase-card-sub">These are most<br>deciding words about you</div>
+        </div>
+        <div class="mini-resume">
+          <div class="mr-line w50" style="background:#ddd;height:7px;margin-bottom:8px"></div>
+          ${d.strongPhrases.slice(0,3).map((_,i)=>`
+            <div class="mr-line ${['hl-g w100','hl-g w80','w65'][i]}"></div>
+          `).join('')}
+          <div class="mr-line w40" style="background:#eee;margin:8px 0 6px"></div>
+          ${d.strongPhrases.slice(3,6).map((_,i)=>`
+            <div class="mr-line ${['hl-g w100','w80','hl-g w65'][i]}"></div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="phrase-tags" style="margin-top:1rem">
+        ${d.strongPhrases.map(p=>`<span class="ptag g">${p}</span>`).join('')}
+      </div>
+    </div>
+
+    <div class="phrase-card red-card" style="animation-delay:0.25s">
+      <div class="phrase-with-resume">
+        <div>
+          <div class="phrase-card-title">Red Flags that<br>Hurt you</div>
+          <div class="phrase-card-sub">Stuff that screams<br>'next applicant.'</div>
+        </div>
+        <div class="mini-resume">
+          <div class="mr-line w50" style="background:#ddd;height:7px;margin-bottom:8px;text-decoration:line-through"></div>
+          ${d.weakPhrases.slice(0,3).map((_,i)=>`
+            <div class="mr-line ${['hl-r w100','hl-r w80','w65'][i]}"></div>
+          `).join('')}
+          <div class="mr-line w40" style="background:#eee;margin:8px 0 6px"></div>
+          ${d.weakPhrases.slice(3,6).map((_,i)=>`
+            <div class="mr-line ${['hl-r w100','w80','hl-r w65'][i]}"></div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="phrase-tags" style="margin-top:1rem">
+        ${d.weakPhrases.map(p=>`<span class="ptag r">${p}</span>`).join('')}
+      </div>
+    </div>
+  `;
+  body.appendChild(phRow);
+
+  // ── PDF Highlights section ──
+  const pdfCard = document.createElement('div');
+  pdfCard.className = 'glass-card full pdf-section';
+  pdfCard.style.cssText = 'margin-bottom:1.25rem;animation-delay:0.3s';
+  pdfCard.innerHTML = `
+    <div class="card-eyebrow">Resume Highlights — What sticks in the blink</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1rem;">
+      A recruiter scans a résumé for 5–7 seconds before making a call. 
+      <span style="background:rgba(0,200,83,0.2);padding:1px 6px;border-radius:3px;color:#00703a">Green</span> = strong, 
+      <span style="background:rgba(255,23,68,0.15);padding:1px 6px;border-radius:3px;color:#c0001a">Red</span> = hurts you.
+    </div>
+    <div class="pdf-canvas-wrap">
+      <canvas id="pdfCanvas"></canvas>
+      <div id="overlayLayer"></div>
+    </div>
+  `;
+  body.appendChild(pdfCard);
+
+  // Render PDF with overlays
+  if (pdfDoc) {
+    setTimeout(() => renderPdfOverlay(d), 100);
+  } else {
+    pdfCard.querySelector('.pdf-canvas-wrap').innerHTML = `
+      <div style="padding:2rem;text-align:center;color:var(--muted);font-size:13px">
+        PDF preview not available for text files — upload a PDF to see overlay highlights.
+      </div>`;
+  }
+
+  // ── Improvements ──
+  const impCard = document.createElement('div');
+  impCard.className = 'glass-card full';
+  impCard.style.cssText = 'animation-delay:0.35s';
+  impCard.innerHTML = `
+    <div class="card-eyebrow">Improvement Playbook</div>
+    <div class="improv-list">
+      ${(d.improvements||[]).map((imp,i)=>`
+        <div class="improv-item">
+          <div class="improv-num">0${i+1}</div>
+          <div class="improv-content">
+            <div class="improv-badge ${imp.priority?.toLowerCase()}">${imp.priority||'HIGH'}</div>
+            <div class="improv-text"><strong>${imp.issue}</strong><br><span style="color:var(--muted)">${imp.fix}</span></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  body.appendChild(impCard);
+}
+
+// ── PDF OVERLAY RENDERING ──
+async function renderPdfOverlay(analysisData) {
+  try {
+    const page = await pdfDoc.getPage(1);
+    const canvas = document.getElementById('pdfCanvas');
+    const container = canvas.parentElement;
+    const containerWidth = container.offsetWidth || 700;
+    const viewport = page.getViewport({ scale: 1 });
+    const scale = containerWidth / viewport.width;
+    const scaledViewport = page.getViewport({ scale });
+
+    canvas.width = scaledViewport.width;
+    canvas.height = scaledViewport.height;
+    canvas.style.width = '100%';
+    canvas.style.height = 'auto';
+
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport: scaledViewport }).promise;
+
+    // Extract text items with coordinates
+    const textContent = await page.getTextContent();
+    const overlay = document.getElementById('overlayLayer');
+    overlay.innerHTML = '';
+    overlay.style.width = scaledViewport.width + 'px';
+    overlay.style.height = scaledViewport.height + 'px';
+
+    const strong = (analysisData.strongPhrases || []).map(p => p.toLowerCase().trim());
+    const weak = (analysisData.weakPhrases || []).map(p => p.toLowerCase().trim());
+
+    // Build full text line groups by Y coordinate
+    const lines = {};
+    textContent.items.forEach(item => {
+      if (!item.str.trim()) return;
+      const [,,,, tx, ty] = item.transform;
+      const yKey = Math.round(ty);
+      if (!lines[yKey]) lines[yKey] = [];
+      lines[yKey].push(item);
+    });
+
+    // For each text item, check if it matches any phrase
+    textContent.items.forEach(item => {
+      if (!item.str.trim() || item.str.trim().length < 3) return;
+      const txt = item.str.toLowerCase().trim();
+      const [sx,,, sy, tx, ty] = item.transform;
+
+      let isStrong = strong.some(p => p.includes(txt) || txt.includes(p.slice(0,15)));
+      let isWeak = !isStrong && weak.some(p => p.includes(txt) || txt.includes(p.slice(0,12)));
+
+      if (!isStrong && !isWeak) return;
+
+      // Convert PDF coords (bottom-left) → canvas coords (top-left)
+      const pt1 = scaledViewport.convertToViewportPoint(tx, ty);
+      const pt2 = scaledViewport.convertToViewportPoint(tx + item.width, ty + (item.height || 10));
+
+      const left = Math.min(pt1[0], pt2[0]);
+      const top = Math.min(pt1[1], pt2[1]);
+      const width = Math.abs(pt2[0] - pt1[0]);
+      const height = Math.abs(pt2[1] - pt1[1]) + 2;
+
+      if (width < 2 || height < 2) return;
+
+      const div = document.createElement('div');
+      div.className = `overlay-hl ${isStrong ? 'strong' : 'weak'}`;
+      div.style.cssText = `left:${left}px;top:${top}px;width:${width}px;height:${height}px;`;
+
+      const tip = document.createElement('div');
+      tip.className = 'hl-tooltip';
+      tip.textContent = isStrong ? '✓ Strong signal' : '✗ Red flag — weakens your case';
+      div.appendChild(tip);
+
+      overlay.appendChild(div);
+    });
+
+  } catch(err) {
+    console.warn('PDF overlay error:', err);
+  }
+}
+
+// ── COMPANY TAB SWITCH ──
+async function switchCo(btn) {
+  const co = btn.dataset.co;
+  document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  if (cache[co]) { renderResults(co); return; }
+
+  // Skeleton
+  const body = document.getElementById('resultsBody');
+  body.innerHTML = `
+    <div class="two-col">
+      <div class="glass-card">${[1,2,3,4,5].map(()=>`<div class="skel"></div>`).join('')}</div>
+      <div class="glass-card">${[1,2,3,4,5].map(()=>`<div class="skel"></div>`).join('')}</div>
+    </div>
+    <div class="glass-card full" style="margin-bottom:1.25rem">${[1,2,3].map(()=>`<div class="skel"></div>`).join('')}</div>
+  `;
+
+  try {
+    await doAnalysis(co);
+    renderResults(co);
+  } catch(err) {
+    showErr(err.message);
+  }
+}
+
+// ── UTILS ──
+function animateNum(id, from, to, dur) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const s = performance.now();
+  const tick = now => {
+    const t = Math.min((now-s)/dur, 1);
+    const e = 1 - Math.pow(1-t, 3);
+    el.textContent = Math.round(from + (to-from)*e);
+    if (t < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+function showErr(msg) {
+  const b = document.getElementById('errBox');
+  b.innerHTML = `<div class="err-box">⚠ ${msg} — <button onclick="reset()" style="background:none;border:none;text-decoration:underline;cursor:pointer;color:inherit">try again</button></div>`;
+  b.style.display = 'block';
+}
+
+function reset() {
+  resumeText=''; pdfDoc=null; cache={}; currentCo='Meta';
+  document.getElementById('fileInput').value='';
+  document.getElementById('errBox').style.display='none';
+  document.querySelectorAll('.ctab').forEach((b,i) => b.classList.toggle('active',i===0));
+  show('landing');
+}
+
+// Drag & drop
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor='var(--ink)'; });
+dz.addEventListener('dragleave', () => { dz.style.borderColor=''; });
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.style.borderColor='';
+  const f = e.dataTransfer.files[0];
+  if (f) { document.getElementById('fileInput').files = e.dataTransfer.files; handleFile({target:{files:[f]}}); }
+});
+</script>
+</body>
+</html>
