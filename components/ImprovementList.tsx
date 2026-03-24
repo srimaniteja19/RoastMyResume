@@ -12,9 +12,7 @@ type Props = {
 
 export function ImprovementList({ improvements }: Props) {
   return (
-    <>
-      <div className="card-eyebrow">Improvement Playbook</div>
-      <div className="flex flex-col">
+    <div className="flex flex-col">
         {improvements.map((item, i) => (
           <div
             key={`${item.issue}-${i}`}
@@ -39,7 +37,6 @@ export function ImprovementList({ improvements }: Props) {
             </div>
           </div>
         ))}
-      </div>
-    </>
+    </div>
   );
 }

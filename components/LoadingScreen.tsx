@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 const MESSAGES = [
   ["🧠", "Simulating FAANG recruiter brain...", "WARMING UP THE ALGORITHM"],
@@ -13,23 +13,22 @@ const MESSAGES = [
 ];
 
 export function LoadingScreen() {
-  const picks = useMemo(() => [...MESSAGES].sort(() => Math.random() - 0.5).slice(0, 6), []);
   const [idx, setIdx] = useState(0);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const t = setInterval(() => {
-      setIdx((i) => (i + 1) % picks.length);
+      setIdx((i) => (i + 1) % MESSAGES.length);
       setProgress((p) => Math.min(p + Math.random() * 14 + 4, 88));
     }, 900);
     return () => clearInterval(t);
-  }, [picks.length]);
+  }, []);
 
   useEffect(() => {
     return () => setProgress(100);
   }, []);
 
-  const [emoji, title, msg] = picks[idx] ?? picks[0];
+  const [emoji, title, msg] = MESSAGES[idx] ?? MESSAGES[0];
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-8 py-16 text-center">

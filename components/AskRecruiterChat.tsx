@@ -1,7 +1,7 @@
 "use client";
 
-import { MessageCircle, Send } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Send } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { chatWithRecruiter } from "@/lib/ai";
 import type { AnalysisResult, ApiProvider, Company } from "@/lib/types";
 
@@ -16,7 +16,27 @@ type Props = {
 type Message = { role: "user" | "assistant"; content: string };
 
 export function AskRecruiterChat({ result, company, resumeText, provider, apiKey }: Props) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const verdict = result.overall.verdict;
+  const suggestions = useMemo(
+    () => [
+      verdict === "SHORTLISTED"
+        ? "Why did you shortlist me?"
+        : verdict === "REJECTED"
+          ? "Why did you reject me?"
+          : "Why am I on the fence?",
+      "What would get me to shortlisted?",
+      "What skills am I missing?",
+      "How do I improve my bullet points?"
+    ],
+    [verdict]
+  );
+
+  const [messages, setMessages] = useState<Message[]>(() => [
+    {
+      role: "assistant",
+      content: `Hi! I'm the simulated ${company} recruiter who just reviewed your resume. I gave you a verdict of ${verdict.replace(/_/g, " ")}. Ask me anything about my decision.`
+    }
+  ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -29,6 +49,10 @@ export function AskRecruiterChat({ result, company, resumeText, provider, apiKey
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
+
+  function handleSuggestionClick(text: string) {
+    setInput(text);
+  }
 
   async function handleSend() {
     const text = input.trim();
@@ -65,16 +89,23 @@ export function AskRecruiterChat({ result, company, resumeText, provider, apiKey
         Chat as if you&apos;re talking to a {company} recruiter who just reviewed your resume.
       </p>
 
+      {messages.length <= 1 && (
+        <div className="mb-3 flex flex-wrap gap-2">
+          {suggestions.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => handleSuggestionClick(s)}
+              className="rounded-full border border-ink/12 bg-white px-4 py-2 text-[11px] font-semibold text-ink/60 transition hover:border-[#b044ff] hover:text-[#b044ff]"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="mb-4 max-h-[340px] min-h-[200px] overflow-y-auto rounded-xl border border-[rgba(26,26,46,0.08)] bg-[rgba(255,255,255,0.6)] p-3">
-        {messages.length === 0 ? (
-          <div className="flex h-[180px] flex-col items-center justify-center text-center">
-            <MessageCircle className="mb-2 h-10 w-10 text-[rgba(26,26,46,0.3)]" />
-            <p className="text-[13px] text-ink/50">
-              Ask anything — &quot;Why might I get rejected?&quot;, &quot;What&apos;s my biggest
-              strength?&quot;, &quot;How should I tailor for a PM role?&quot;
-            </p>
-          </div>
-        ) : (
+        {messages.length > 0 ? (
           <div className="space-y-3">
             {messages.map((m, i) => (
               <div
@@ -94,14 +125,25 @@ export function AskRecruiterChat({ result, company, resumeText, provider, apiKey
             ))}
             {loading && (
               <div className="flex justify-start">
-                <div className="rounded-2xl bg-[rgba(26,26,46,0.06)] px-4 py-2.5 text-[13px] text-ink/60">
-                  …
+                <div className="flex items-center gap-1 rounded-2xl bg-[rgba(26,26,46,0.06)] px-4 py-2.5">
+                  <span
+                    className="h-2 w-2 animate-bounce rounded-full bg-ink/40"
+                    style={{ animationDelay: "0ms" }}
+                  />
+                  <span
+                    className="h-2 w-2 animate-bounce rounded-full bg-ink/40"
+                    style={{ animationDelay: "150ms" }}
+                  />
+                  <span
+                    className="h-2 w-2 animate-bounce rounded-full bg-ink/40"
+                    style={{ animationDelay: "300ms" }}
+                  />
                 </div>
               </div>
             )}
             <div ref={scrollRef} />
           </div>
-        )}
+        ) : null}
       </div>
 
       {error ? (

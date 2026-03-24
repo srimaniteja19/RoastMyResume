@@ -17,7 +17,12 @@ const CALLOUTS = [
 
 type Band = { top: number; height: number; left: number; width: number; str: string }[];
 
-export function RecruiterSimulation({ onComplete }: { onComplete?: () => void }) {
+type Props = {
+  onComplete?: () => void;
+  verdict?: "SHORTLISTED" | "ON THE FENCE" | "REJECTED";
+};
+
+export function RecruiterSimulation({ onComplete, verdict }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -232,7 +237,15 @@ export function RecruiterSimulation({ onComplete }: { onComplete?: () => void })
             animate={{ opacity: 1 }}
             className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-ink/10 bg-ink/5 px-4 py-3"
           >
-            <p className="text-[13px] font-medium text-ink">That&apos;s what a recruiter saw in 7 seconds.</p>
+            <p className="text-[13px] font-medium text-ink">
+              {verdict === "SHORTLISTED"
+                ? "✅ Would read further — based on first 7 seconds, a recruiter would continue reading."
+                : verdict === "ON THE FENCE"
+                  ? "🤔 Borderline — would skim more before deciding."
+                  : verdict === "REJECTED"
+                    ? "❌ Passed to next candidate — based on first 7 seconds, a recruiter would likely move on."
+                    : "That's what a recruiter saw in 7 seconds."}
+            </p>
             <button
               type="button"
               onClick={startSimulation}

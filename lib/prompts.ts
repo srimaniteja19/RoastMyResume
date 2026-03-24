@@ -133,3 +133,23 @@ Return a JSON object with:
 
 Return ONLY valid JSON. No markdown.`;
 }
+
+// ── Download / Parse / Rewrite prompts ──
+
+export const PARSE_RESUME_SYSTEM = `You are a resume parser. Extract every section faithfully from the raw resume text. Never invent content. Preserve ALL text exactly as written — do not summarize, skip, or reorder.`;
+
+export const PARSE_RESUME_SCHEMA = `{
+  "name": "string",
+  "contact": "string (email, phone, location — whatever appears)",
+  "summary": "string (or empty if none)",
+  "experience": [{"company": "string", "title": "string", "dates": "string", "location": "string", "bullets": ["string"]}],
+  "education": [{"school": "string", "degree": "string", "dates": "string", "gpa": "string?"}],
+  "skills": {"raw": "string", "categories": [{"label": "string", "items": "string"}]},
+  "projects": [{"name": "string", "tech": "string", "bullets": ["string"]}],
+  "certifications": ["string"],
+  "otherSections": [{"title": "string", "content": "string"}]
+}`;
+
+export const REWRITE_BULLETS_SYSTEM = `You are a senior tech resume writer. Rewrite bullets using the XYZ formula: Accomplished [X] as measured by [Y] by doing [Z]. Keep technical context accurate. If you must estimate metrics, add '~' prefix. Never fabricate company names or products.`;
+
+export const REWRITE_SUMMARY_SYSTEM = `You are a senior tech resume writer. Rewrite professional summaries to be concise, impactful, and tailored to the target company. Never add fictional information.`;

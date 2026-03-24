@@ -2,9 +2,11 @@
 
 import { companies, type Company } from "@/lib/types";
 
+export type TabValue = Company | "__compare";
+
 type Props = {
-  value: Company;
-  onChange: (company: Company) => void;
+  value: TabValue;
+  onChange: (value: TabValue) => void;
   loadingCompany?: Company | null;
 };
 
@@ -31,6 +33,15 @@ export function CompanyTabs({ value, onChange, loadingCompany }: Props) {
           </button>
         );
       })}
+      <button
+        type="button"
+        className={`ml-auto shrink-0 whitespace-nowrap border-b-2.5 border-transparent px-6 py-4 font-display text-xs font-bold tracking-wider transition ${
+          value === "__compare" ? "border-[#b044ff] text-[#b044ff]" : "text-[#b044ff] hover:text-[#b044ff]/80"
+        }`}
+        onClick={() => onChange("__compare")}
+      >
+        ⊞ Compare All
+      </button>
     </div>
   );
 }

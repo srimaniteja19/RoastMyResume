@@ -318,7 +318,10 @@ export default function LandingPage() {
           >
             <span className="text-lg">↑</span> Upload Resume
           </motion.button>
-          <p className="mt-4 text-xs text-ink/40">No signup required</p>
+          <p className="mt-4 text-xs text-ink/40">No signup required · no data stored · processed in your browser</p>
+          <p className="mt-6 font-handwritten text-base font-semibold text-ink/35">
+            trusted by students from <em className="not-italic text-[#b044ff]/60">Berkeley · MIT · Stanford · Georgia Tech</em>
+          </p>
         </motion.div>
 
       </div>

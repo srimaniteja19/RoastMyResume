@@ -6,34 +6,37 @@
 <title>RoastMyResume — Will It Pass FAANG?</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 
 :root {
-  --sky: #b8d4f5;
-  --sky2: #d4e8fa;
-  --sky3: #e8f3fd;
+  --bg: #f5f4f0;
+  --bg2: #eeecea;
   --white: #ffffff;
-  --ink: #1a1a2e;
-  --ink2: #2d2d44;
-  --muted: rgba(26,26,46,0.5);
-  --muted2: rgba(26,26,46,0.3);
+  --ink: #1a1814;
+  --ink2: #2d2b26;
+  --muted: rgba(26,24,20,0.45);
+  --muted2: rgba(26,24,20,0.25);
+  --primary: #e040fb;
+  --primary2: #c000d0;
   --accent-green: #00c853;
   --accent-red: #ff1744;
   --accent-blue: #2979ff;
-  --card-bg: rgba(255,255,255,0.72);
-  --card-border: rgba(255,255,255,0.9);
+  --card-bg: rgba(255,255,255,0.85);
+  --card-border: rgba(255,255,255,0.95);
   --serif: 'Instrument Serif', Georgia, serif;
-  --sans: 'Instrument Sans', system-ui, sans-serif;
+  --sans: 'Cabinet Grotesk', 'Instrument Sans', system-ui, sans-serif;
   --display: 'Syne', sans-serif;
+  --hand: 'Caveat', cursive;
 }
 
 html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--sans);
-  background: var(--sky2);
+  background: var(--bg);
   color: var(--ink);
   overflow-x: hidden;
   min-height: 100vh;
@@ -45,324 +48,328 @@ body {
 
 /* ─────────────────────────────── LANDING */
 #landing {
-  min-height: 100vh;
-  position: relative;
-  overflow: hidden;
+  min-height:100vh;
+  background:#09090f;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  overflow:hidden;
 }
 
-/* Sky gradient background */
-.sky-bg {
-  position: fixed;
-  inset: 0;
-  background: 
-    radial-gradient(ellipse 120% 60% at 50% 0%, #c9e0f8 0%, #b8d4f5 40%, #a8c8f0 100%);
-  z-index: -2;
+/* Ambient gradient orbs */
+.orb {
+  position:fixed;
+  border-radius:50%;
+  pointer-events:none;
+  filter:blur(80px);
+  z-index:0;
+}
+.orb-1 {
+  width:600px; height:600px;
+  top:-200px; right:-100px;
+  background:radial-gradient(circle, rgba(180,0,255,0.18) 0%, transparent 70%);
+  animation:orbFloat 8s ease-in-out infinite;
+}
+.orb-2 {
+  width:500px; height:500px;
+  bottom:-150px; left:-100px;
+  background:radial-gradient(circle, rgba(255,0,128,0.12) 0%, transparent 70%);
+  animation:orbFloat 10s ease-in-out infinite reverse;
+}
+.orb-3 {
+  width:350px; height:350px;
+  top:40%; left:50%;
+  transform:translateX(-50%);
+  background:radial-gradient(circle, rgba(140,40,255,0.08) 0%, transparent 70%);
+  animation:orbFloat 12s ease-in-out infinite 2s;
+}
+@keyframes orbFloat {
+  0%,100% { transform:translateY(0) scale(1); }
+  50%      { transform:translateY(-30px) scale(1.05); }
+}
+.orb-3 { animation:orbFloat3 12s ease-in-out infinite 2s; }
+@keyframes orbFloat3 {
+  0%,100% { transform:translateX(-50%) translateY(0); }
+  50%      { transform:translateX(-50%) translateY(-20px); }
 }
 
-/* Fluffy clouds */
-.clouds {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
+/* Canvas bg */
+#bgCanvas {
+  position:fixed; inset:0;
+  pointer-events:none; z-index:1;
 }
 
-.cloud {
-  position: absolute;
-  background: white;
-  border-radius: 50%;
-  filter: blur(0px);
-  opacity: 0.85;
-}
-.cloud::before, .cloud::after {
-  content: '';
-  position: absolute;
-  background: white;
-  border-radius: 50%;
-}
-
-.c1 { width:220px; height:80px; top:8%; left:-2%; animation: drift1 60s linear infinite; }
-.c1::before { width:120px; height:100px; top:-50px; left:40px; }
-.c1::after { width:100px; height:70px; top:-30px; left:100px; }
-
-.c2 { width:180px; height:60px; top:15%; right:5%; animation: drift2 80s linear infinite; }
-.c2::before { width:100px; height:90px; top:-45px; left:30px; }
-.c2::after { width:80px; height:55px; top:-25px; left:90px; }
-
-.c3 { width:260px; height:90px; top:30%; left:60%; animation: drift1 100s linear infinite reverse; opacity:0.6; }
-.c3::before { width:140px; height:110px; top:-55px; left:50px; }
-.c3::after { width:110px; height:75px; top:-35px; left:120px; }
-
-.c4 { width:150px; height:55px; top:45%; left:10%; animation: drift2 70s linear infinite; opacity:0.5; }
-.c4::before { width:90px; height:80px; top:-40px; left:25px; }
-.c4::after { width:70px; height:50px; top:-20px; left:75px; }
-
-.c5 { width:200px; height:70px; top:55%; right:15%; animation: drift1 90s linear infinite; opacity:0.45; }
-.c5::before { width:110px; height:90px; top:-45px; left:35px; }
-.c5::after { width:90px; height:65px; top:-28px; left:95px; }
-
-@keyframes drift1 {
-  from { transform: translateX(-300px); }
-  to { transform: translateX(calc(100vw + 300px)); }
-}
-@keyframes drift2 {
-  from { transform: translateX(calc(100vw + 300px)); }
-  to { transform: translateX(-300px); }
-}
-
-/* Nav */
+/* ── NAV ── */
 nav {
-  position: relative;
-  z-index: 10;
-  padding: 1.25rem 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position:relative; z-index:20;
+  padding:1.6rem 2.5rem;
+  display:flex; align-items:center; justify-content:space-between;
 }
-
 .logo-text {
-  font-family: var(--display);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--ink);
-  opacity: 0.7;
+  font-family:var(--hand);
+  font-size:24px; font-weight:700;
+  color:#fff;
+  letter-spacing:-0.01em;
 }
-
-.nav-right { display: flex; gap: 10px; align-items: center; }
-
 .pill-btn {
-  padding: 7px 18px;
-  border-radius: 100px;
-  border: 1.5px solid rgba(26,26,46,0.2);
-  background: rgba(255,255,255,0.5);
-  color: var(--ink);
-  font-family: var(--sans);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  transition: all 0.2s;
+  padding:8px 20px;
+  border-radius:100px;
+  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.05);
+  color:rgba(255,255,255,0.7);
+  font-size:12px; font-weight:600;
+  cursor:pointer; backdrop-filter:blur(12px);
+  transition:all 0.2s;
+  font-family:var(--sans);
 }
 .pill-btn:hover {
-  background: rgba(255,255,255,0.8);
-  border-color: rgba(26,26,46,0.35);
+  background:rgba(180,0,255,0.15);
+  border-color:rgba(180,0,255,0.4);
+  color:#fff;
 }
 
-/* Hero */
+/* ── HERO ── */
 .hero {
-  position: relative;
-  z-index: 5;
-  padding: 3rem 2rem 2rem;
-  text-align: center;
-  max-width: 860px;
-  margin: 0 auto;
+  position:relative; z-index:10;
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:2rem 2rem 3rem;
+  text-align:center;
+  gap:0;
 }
 
-/* Resume card floating behind headline */
-.resume-float {
-  position: absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 340px;
-  height: 440px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 30px 80px rgba(0,0,0,0.18), 0 8px 20px rgba(0,0,0,0.08);
-  padding: 24px 22px;
-  z-index: -1;
-  opacity: 0.75;
-  transform: translateX(-50%) rotate(-2deg);
+/* Eyebrow — handwritten */
+.hero-eyebrow {
+  font-family:var(--hand);
+  font-size:clamp(1.2rem,2.2vw,1.6rem);
+  font-weight:600;
+  color:rgba(220,100,255,0.75);
+  margin-bottom:0.9rem;
+  opacity:0;
+  transform:translateY(10px);
+  display:block;
 }
 
-.resume-line {
-  height: 7px;
-  background: #e8e8e8;
-  border-radius: 4px;
-  margin-bottom: 8px;
-}
-.resume-line.short { width: 55%; }
-.resume-line.med { width: 75%; }
-.resume-line.full { width: 100%; }
-.resume-line.tiny { height: 5px; width: 40%; background: #f0f0f0; }
-.resume-line.header { height: 12px; width: 50%; background: #d0d0d0; margin: 0 auto 16px; }
-.resume-section-label { height: 6px; width: 25%; background: #c8c8c8; margin: 14px 0 10px; border-radius: 3px; }
-
-/* Highlight overlays on the floating resume */
-.hl-green {
-  background: rgba(0,200,83,0.25);
-  border-radius: 3px;
-  display: inline-block;
-}
-.hl-red {
-  background: rgba(255,23,68,0.2);
-  border-radius: 3px;
-  display: inline-block;
-}
-
+/* Big headline */
 .hero-headline {
-  font-family: var(--serif);
-  font-size: clamp(2.6rem, 6vw, 4.5rem);
-  line-height: 1.05;
-  color: var(--ink);
-  margin-bottom: 1.2rem;
-  position: relative;
-  z-index: 2;
-  text-shadow: 0 2px 20px rgba(255,255,255,0.6);
-  animation: fadeUp 0.7s 0.1s both;
+  font-family:var(--sans);
+  font-weight:900;
+  font-size:clamp(4rem,11vw,8.5rem);
+  line-height:0.93;
+  letter-spacing:-0.05em;
+  color:#fff;
+  margin-bottom:0.6rem;
+  opacity:0;
+  transform:translateY(24px);
+}
+.hero-headline .outlined {
+  color:transparent;
+  -webkit-text-stroke:1.5px rgba(255,255,255,0.35);
+  display:block;
+  font-style:italic;
 }
 
-.hero-headline em {
-  font-style: italic;
-  color: #1a3a6e;
-}
-
+/* Subtitle */
 .hero-sub {
-  font-size: 15px;
-  color: var(--muted);
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-  animation: fadeUp 0.7s 0.25s both;
+  font-size:clamp(13px,1.4vw,15px);
+  color:rgba(255,255,255,0.3);
+  font-weight:500;
+  margin-bottom:2rem;
+  opacity:0;
+  letter-spacing:0.01em;
 }
 
-/* Company logos row */
-.company-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin-bottom: 2rem;
-  animation: fadeUp 0.7s 0.35s both;
-  flex-wrap: wrap;
+/* Company names — plain text, comma separated */
+.company-list {
+  display:flex; align-items:center; justify-content:center;
+  gap:0; margin-bottom:2.5rem;
+  opacity:0; transform:translateY(8px);
+  flex-wrap:wrap;
+}
+.co-name {
+  font-size:11px; font-weight:700;
+  letter-spacing:0.12em;
+  color:rgba(255,255,255,0.2);
+  text-transform:uppercase;
+  padding:0 14px;
+  position:relative;
+  transition:color 0.2s;
+}
+.co-name:not(:last-child)::after {
+  content:'·';
+  position:absolute; right:-2px;
+  color:rgba(255,255,255,0.1);
+}
+.co-name:hover { color:rgba(200,100,255,0.8); }
+
+/* ── UPLOAD ZONE ── */
+.upload-outer {
+  width:100%; max-width:460px;
+  opacity:0; transform:translateY(20px);
 }
 
-.company-row span {
-  font-size: 13px;
-  color: var(--muted);
-  margin-right: 4px;
+.drop-zone {
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:24px;
+  padding:2.5rem 2rem 2rem;
+  margin-bottom:12px;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  background:rgba(255,255,255,0.025);
+  transition:all 0.3s;
+  backdrop-filter:blur(20px);
+}
+.drop-zone:hover {
+  border-color:rgba(180,0,255,0.35);
+  background:rgba(180,0,255,0.04);
+  transform:translateY(-2px);
+}
+.drop-zone.drag-over {
+  border-color:rgba(180,0,255,0.6);
+  background:rgba(180,0,255,0.07);
 }
 
-.co-badge {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.85);
-  border: 1px solid rgba(255,255,255,0.9);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink2);
-  backdrop-filter: blur(4px);
-  transition: transform 0.2s, box-shadow 0.2s;
+/* Glimmer edge on hover */
+.drop-zone::before {
+  content:'';
+  position:absolute; inset:0;
+  border-radius:24px;
+  background:linear-gradient(135deg,
+    rgba(180,0,255,0.08) 0%,
+    transparent 50%,
+    rgba(255,0,128,0.05) 100%);
+  opacity:0; transition:opacity 0.3s;
 }
-.co-badge:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+.drop-zone:hover::before { opacity:1; }
+
+/* Mini resume stack */
+.resume-stack {
+  width:80px; height:96px;
+  margin:0 auto 20px;
+  position:relative;
+}
+.rs-card {
+  position:absolute; inset:0;
+  border-radius:10px;
+  padding:11px 10px;
+  display:flex; flex-direction:column; gap:5px;
+}
+.rs-card.c3 {
+  background:rgba(180,0,255,0.06);
+  border:1px solid rgba(180,0,255,0.12);
+  transform:rotate(6deg) translate(8px,2px);
+}
+.rs-card.c2 {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  transform:rotate(-3deg) translate(-4px,1px);
+}
+.rs-card.c1 {
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.14);
+  transform:rotate(0deg);
+  box-shadow:0 12px 40px rgba(0,0,0,0.5);
+  z-index:3;
+  overflow:hidden;
+}
+.drop-zone:hover .rs-card.c3 { transform:rotate(10deg) translate(14px,4px); }
+.drop-zone:hover .rs-card.c2 { transform:rotate(-6deg) translate(-8px,2px); }
+
+.rs-line {
+  height:4px; border-radius:2px;
+  background:rgba(255,255,255,0.12);
+}
+.rs-line.hi { background:rgba(200,80,255,0.5); }
+.rs-line.hdr { height:7px; background:rgba(255,255,255,0.22); border-radius:3px; margin-bottom:5px; width:55%; }
+.rs-line.w100{width:100%} .rs-line.w80{width:80%} .rs-line.w65{width:65%}
+.rs-line.w50{width:50%} .rs-line.w40{width:40%}
+
+/* Scan beam */
+.rs-beam {
+  position:absolute; left:0; right:0; height:1.5px;
+  background:linear-gradient(90deg,transparent 0%,#c040ff 30%,#ff40a0 50%,#c040ff 70%,transparent 100%);
+  box-shadow:0 0 12px rgba(200,60,255,0.8), 0 0 4px rgba(255,60,160,0.6);
+  animation:scan 2.8s ease-in-out infinite;
+  top:0;
+}
+@keyframes scan {
+  0%   { top:0%; opacity:0; }
+  5%   { opacity:1; }
+  95%  { opacity:1; }
+  100% { top:100%; opacity:0; }
 }
 
-/* Upload card */
-.upload-card {
-  background: rgba(255,255,255,0.75);
-  backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(255,255,255,0.95);
-  border-radius: 20px;
-  padding: 2rem;
-  max-width: 440px;
-  margin: 0 auto 2rem;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
-  animation: fadeUp 0.7s 0.45s both;
+.drop-label {
+  font-size:15px; font-weight:800;
+  color:rgba(255,255,255,0.85);
+  margin-bottom:4px;
+  font-family:var(--sans);
+}
+.drop-sub {
+  font-size:12px;
+  color:rgba(255,255,255,0.25);
+  font-weight:500;
 }
 
-.upload-dropzone {
-  border: 2px dashed rgba(26,26,46,0.2);
-  border-radius: 14px;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  background: rgba(255,255,255,0.5);
-}
-.upload-dropzone:hover {
-  border-color: var(--ink2);
-  background: rgba(255,255,255,0.8);
-}
-
-.upload-icon {
-  width: 44px;
-  height: 44px;
-  background: var(--ink);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 12px;
-}
-
-.upload-icon svg { color: white; }
-
-.upload-title {
-  font-family: var(--display);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--ink);
-  margin-bottom: 4px;
-}
-
-.upload-hint2 {
-  font-size: 12px;
-  color: var(--muted);
-}
-
+/* CTA */
 .upload-cta {
-  width: 100%;
-  margin-top: 1rem;
-  padding: 14px;
-  background: var(--ink);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-family: var(--display);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  width:100%; padding:18px;
+  background:linear-gradient(135deg, #c040ff 0%, #8020e0 50%, #ff2090 100%);
+  background-size:200% 100%;
+  color:#fff; border:none;
+  border-radius:16px;
+  font-size:15px; font-weight:800;
+  letter-spacing:0.02em;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  position:relative; overflow:hidden;
+  font-family:var(--sans);
+  transition:transform 0.15s, box-shadow 0.3s;
+  box-shadow:0 4px 32px rgba(180,0,255,0.35);
+  animation:ctaPulse 3s ease-in-out 2.5s infinite;
 }
-.upload-cta:hover { background: var(--ink2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,26,46,0.25); }
+@keyframes ctaPulse {
+  0%,100% { box-shadow:0 4px 32px rgba(180,0,255,0.35); }
+  50%      { box-shadow:0 4px 60px rgba(180,0,255,0.6), 0 0 100px rgba(255,0,128,0.2); }
+}
+.upload-cta::before {
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,0.12) 50%,transparent 65%);
+  transform:translateX(-100%);
+  transition:transform 0.5s;
+}
+.upload-cta:hover::before { transform:translateX(100%); }
+.upload-cta:hover { transform:translateY(-2px); box-shadow:0 8px 48px rgba(180,0,255,0.5); }
+.upload-cta:active { transform:translateY(1px); }
 
 .no-signup {
-  text-align: center;
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 10px;
+  margin-top:10px;
+  font-size:11px;
+  color:rgba(255,255,255,0.18);
+  font-weight:500;
+  text-align:center;
+  display:block;
 }
 
 #fileInput { display:none; }
 
-/* Trust row */
-.trust-row {
-  text-align: center;
-  animation: fadeUp 0.7s 0.6s both;
-  padding-bottom: 3rem;
+/* Trust */
+.trust-strip {
+  position:relative; z-index:10;
+  text-align:center;
+  padding-bottom:2.5rem;
+  opacity:0;
 }
-.trust-stars {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 6px;
+.trust-text {
+  font-family:var(--hand);
+  font-size:15px; font-weight:600;
+  color:rgba(255,255,255,0.18);
 }
-.trust-sub { font-size: 12px; color: var(--muted); }
+.trust-text em { color:rgba(200,100,255,0.45); font-style:normal; }
 
-/* ─────────────────────────────── API MODAL */
+/* ─────────────────────────────── API MODAL /* ─────────────────────────────── API MODAL /* ─────────────────────────────── API MODAL */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -489,6 +496,7 @@ nav {
   justify-content: center;
   text-align: center;
   padding: 2rem;
+  background: var(--bg);
 }
 
 .loading-emoji {
@@ -529,11 +537,361 @@ nav {
 }
 .prog-fill {
   height: 100%;
-  background: var(--ink);
+  background: linear-gradient(90deg,#b388ff,#e040fb);
   border-radius: 3px;
   width: 0%;
   transition: width 0.5s ease;
 }
+
+
+/* ══════════════════════════════════════════════
+   NEW FEATURE CSS
+══════════════════════════════════════════════ */
+
+/* ── SLOT MACHINE REVEAL ── */
+.verdict-hidden .verdict-chrome { filter: blur(8px); opacity:0.3; }
+.slot-counter {
+  font-family: var(--display); font-size: 5.5rem; font-weight: 800;
+  line-height:1; color: var(--ink); transition: all 0.08s;
+}
+.reveal-overlay {
+  position:absolute; inset:0;
+  background: var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  z-index:30; opacity:1; transition: opacity 0.5s;
+}
+.reveal-overlay.done { opacity:0; pointer-events:none; }
+.slot-label {
+  font-family: var(--display); font-size:11px; font-weight:700;
+  letter-spacing:0.18em; text-transform:uppercase; color:var(--muted);
+  margin-bottom:0.8rem;
+}
+.slot-digits {
+  font-family: var(--display); font-size: 8rem; font-weight:900;
+  line-height:1; color:var(--ink); letter-spacing:-0.04em;
+  min-width: 200px; text-align:center;
+  animation: slotFlicker 0.1s infinite;
+}
+@keyframes slotFlicker {
+  0%,100%{opacity:1} 50%{opacity:0.7}
+}
+.slot-sub { font-size:13px; color:var(--muted); margin-top:0.5rem; }
+
+/* ── RECRUITER SCAN SIMULATION ── */
+.scan-simulation {
+  background: white;
+  border-radius: 18px;
+  border: 1.5px solid rgba(26,26,46,0.08);
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+}
+.scan-header {
+  padding: 1.4rem 1.6rem 0;
+  display:flex; align-items:center; gap:12px;
+}
+.scan-timer {
+  width:42px; height:42px; border-radius:50%;
+  border: 3px solid rgba(26,26,46,0.1);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--display); font-size:16px; font-weight:800;
+  color:var(--ink); flex-shrink:0;
+  position:relative; overflow:hidden;
+}
+.scan-timer-fill {
+  position:absolute; inset:0; border-radius:50%;
+  background: conic-gradient(var(--primary) var(--pct,0%), transparent 0%);
+  opacity:0.25; transition: --pct 0.1s;
+}
+.scan-title { font-size:15px; font-weight:800; color:var(--ink); }
+.scan-subtitle { font-size:12px; color:var(--muted); margin-top:2px; }
+.scan-progress-bar {
+  height:3px; background: rgba(26,26,46,0.07);
+  margin-top:1rem;
+}
+.scan-progress-fill {
+  height:100%; background:linear-gradient(90deg, var(--primary), #ff40b0);
+  width:0%; transition: width 0.1s linear;
+}
+
+.scan-resume-wrap {
+  padding: 1.4rem 1.6rem 1.6rem;
+  position:relative; overflow:hidden;
+  min-height: 220px;
+}
+.scan-resume-text {
+  font-size:11.5px; line-height:1.75; color: rgba(26,24,20,0.5);
+  font-family: monospace;
+  max-height: 200px; overflow:hidden;
+  position:relative;
+}
+.scan-resume-text::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:60px;
+  background: linear-gradient(transparent, white);
+}
+.scan-spotlight {
+  position:absolute; left:1.6rem; right:1.6rem;
+  height:28px; border-radius:4px;
+  background: rgba(224,64,251,0.15);
+  border: 1.5px solid rgba(224,64,251,0.4);
+  pointer-events:none; transition: top 0.3s ease;
+  top: 0;
+}
+.scan-callout {
+  position:absolute; right:1.6rem;
+  background: var(--ink); color:white;
+  font-size:11px; font-weight:600;
+  padding:5px 10px; border-radius:6px;
+  white-space:nowrap; opacity:0;
+  transition: opacity 0.3s, top 0.3s;
+  font-family: var(--sans);
+  pointer-events:none;
+  max-width:200px; white-space:normal; text-align:right;
+  z-index:10;
+}
+.scan-callout::after {
+  content:''; position:absolute; left:100%; top:50%;
+  transform:translateY(-50%);
+  border:5px solid transparent; border-left-color:var(--ink);
+}
+.scan-callout.visible { opacity:1; }
+.scan-final-msg {
+  text-align:center; padding:1.5rem;
+  font-size:14px; color:var(--muted); display:none;
+}
+.scan-final-msg strong { color:var(--ink); display:block; font-size:18px; margin-bottom:6px; }
+
+/* ── RADAR CHART ── */
+.radar-wrap {
+  display: flex; align-items:center; justify-content:center;
+  padding: 0.5rem 0 1rem;
+  position:relative;
+}
+.radar-legend {
+  display: flex; flex-wrap:wrap; gap:6px 14px;
+  justify-content:center; margin-top:0.5rem;
+}
+.radar-legend-item {
+  display:flex; align-items:center; gap:5px;
+  font-size:11px; color:var(--muted);
+}
+.radar-dot { width:8px; height:8px; border-radius:50%; }
+
+/* ── COMPANY COMPARISON BARS ── */
+.compare-row {
+  display:flex; align-items:center; gap:12px;
+  padding: 8px 0; border-bottom:1px solid rgba(26,26,46,0.06);
+}
+.compare-row:last-child { border-bottom:none; }
+.compare-co {
+  font-family:var(--display); font-size:11px; font-weight:700;
+  letter-spacing:0.05em; color:var(--muted); width:62px; flex-shrink:0;
+}
+.compare-track {
+  flex:1; height:8px; background:rgba(26,26,46,0.07);
+  border-radius:4px; overflow:hidden;
+}
+.compare-fill {
+  height:100%; border-radius:4px;
+  background:linear-gradient(90deg, #b388ff, #e040fb);
+  width:0%; transition: width 1s cubic-bezier(0.34,1.56,0.64,1);
+}
+.compare-fill.loaded { /* width set by JS */ }
+.compare-num {
+  font-family:var(--display); font-size:12px; font-weight:800;
+  color:var(--ink); width:36px; text-align:right; flex-shrink:0;
+}
+.compare-verdict-pill {
+  padding:2px 8px; border-radius:100px; font-size:10px; font-weight:700;
+  font-family:var(--display); flex-shrink:0; width:90px; text-align:center;
+}
+.cvp-shortlisted { background:rgba(0,200,83,0.12); color:#007a30; }
+.cvp-fence       { background:rgba(255,152,0,0.12); color:#c65d00; }
+.cvp-rejected    { background:rgba(255,23,68,0.1);  color:#b00020; }
+
+/* ── BEFORE/AFTER REWRITE ── */
+.rewrite-item {
+  border: 1px solid rgba(26,26,46,0.08);
+  border-radius:14px; overflow:hidden; margin-bottom:12px;
+}
+.rewrite-item:last-child { margin-bottom:0; }
+.rewrite-panels { display:grid; grid-template-columns:1fr 1fr; }
+@media(max-width:600px) { .rewrite-panels { grid-template-columns:1fr; } }
+.rewrite-panel {
+  padding:1rem 1.2rem;
+}
+.rewrite-panel.before { background:rgba(255,23,68,0.04); border-right:1px solid rgba(26,26,46,0.06); }
+.rewrite-panel.after  { background:rgba(0,200,83,0.04); }
+.rewrite-panel-label {
+  font-size:10px; font-weight:700; letter-spacing:0.12em;
+  text-transform:uppercase; margin-bottom:8px;
+  font-family:var(--display);
+}
+.before .rewrite-panel-label { color:#c0001a; }
+.after  .rewrite-panel-label { color:#007a30; }
+.rewrite-text {
+  font-size:13px; line-height:1.6; color:var(--ink2);
+  font-style:italic;
+}
+.rewrite-footer {
+  padding:10px 1.2rem;
+  background:rgba(26,26,46,0.02);
+  border-top:1px solid rgba(26,26,46,0.06);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.rewrite-badge {
+  font-size:10px; font-weight:700; letter-spacing:0.08em;
+  text-transform:uppercase; font-family:var(--display);
+  padding:3px 10px; border-radius:100px;
+}
+.rb-critical { background:rgba(255,23,68,0.1); color:#c0001a; }
+.rb-high     { background:rgba(255,152,0,0.1); color:#c65d00; }
+.rb-medium   { background:rgba(33,150,243,0.1); color:#0d47a1; }
+.copy-btn {
+  padding:6px 14px; border-radius:8px; border:none;
+  background:var(--ink); color:white;
+  font-size:11px; font-weight:700; font-family:var(--display);
+  cursor:pointer; transition:all 0.15s;
+}
+.copy-btn:hover { background:#3d3b36; }
+.copy-btn.copied { background:var(--accent-green); }
+
+/* ── SHAREABLE CARD ── */
+.share-btn {
+  display:flex; align-items:center; gap:8px;
+  padding:12px 20px; border-radius:12px;
+  border: 1.5px solid rgba(26,26,46,0.12);
+  background:white; color:var(--ink);
+  font-family:var(--display); font-size:13px; font-weight:700;
+  cursor:pointer; transition:all 0.2s;
+}
+.share-btn:hover { background:var(--ink); color:white; }
+.share-btn svg { transition:transform 0.2s; }
+.share-btn:hover svg { transform:translateY(-2px); }
+
+/* ── RECRUITER CHAT ── */
+.chat-messages {
+  max-height:340px; overflow-y:auto;
+  display:flex; flex-direction:column; gap:10px;
+  padding:1rem 0; margin-bottom:1rem;
+  scrollbar-width:thin; scrollbar-color:rgba(26,26,46,0.12) transparent;
+}
+.chat-msg {
+  display:flex; gap:10px; align-items:flex-start;
+  animation: fadeUp 0.3s ease both;
+}
+.chat-msg.user { flex-direction:row-reverse; }
+.chat-avatar {
+  width:30px; height:30px; border-radius:10px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:700;
+}
+.chat-avatar.rec { background:linear-gradient(135deg,#b388ff,#e040fb); color:white; }
+.chat-avatar.usr { background:rgba(26,26,46,0.08); color:var(--muted); }
+.chat-bubble {
+  max-width:80%; padding:10px 14px; border-radius:14px;
+  font-size:13px; line-height:1.6; color:var(--ink2);
+}
+.chat-msg.rec .chat-bubble {
+  background:rgba(26,26,46,0.04);
+  border:1px solid rgba(26,26,46,0.08);
+  border-radius:4px 14px 14px 14px;
+}
+.chat-msg.user .chat-bubble {
+  background:var(--ink); color:white;
+  border-radius:14px 4px 14px 14px;
+}
+.chat-typing {
+  display:flex; gap:4px; align-items:center; padding:2px 0;
+}
+.typing-dot {
+  width:6px; height:6px; background:var(--muted); border-radius:50%;
+  animation: typingBounce 1s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay:0.15s; }
+.typing-dot:nth-child(3) { animation-delay:0.3s; }
+@keyframes typingBounce {
+  0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)}
+}
+.chat-input-row {
+  display:flex; gap:8px;
+}
+.chat-input {
+  flex:1; padding:11px 14px;
+  border:1.5px solid rgba(26,26,46,0.12); border-radius:12px;
+  font-size:13px; font-family:var(--sans); color:var(--ink);
+  background:rgba(26,26,46,0.02); outline:none;
+  transition:border-color 0.2s;
+}
+.chat-input:focus { border-color:var(--primary); }
+.chat-send {
+  padding:11px 18px; background:var(--ink); color:white;
+  border:none; border-radius:12px;
+  font-family:var(--display); font-size:12px; font-weight:700;
+  cursor:pointer; transition:all 0.15s; white-space:nowrap;
+}
+.chat-send:hover { background:#3d3b36; }
+.chat-suggested {
+  display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;
+}
+.chat-suggest-btn {
+  padding:5px 12px; border-radius:100px;
+  border:1px solid rgba(26,26,46,0.12); background:white;
+  font-size:11px; font-weight:600; color:var(--muted);
+  cursor:pointer; font-family:var(--sans); transition:all 0.15s;
+}
+.chat-suggest-btn:hover { border-color:var(--primary); color:var(--primary); }
+
+/* ── JD ANALYZER ── */
+.jd-input {
+  width:100%; min-height:100px; padding:12px 14px;
+  border:1.5px solid rgba(26,26,46,0.12); border-radius:12px;
+  font-size:13px; font-family:var(--sans); color:var(--ink);
+  background:rgba(26,26,46,0.02); outline:none; resize:vertical;
+  transition:border-color 0.2s; margin-bottom:10px;
+  line-height:1.6;
+}
+.jd-input:focus { border-color:var(--primary); }
+.jd-result { margin-top:1rem; }
+.jd-score-row {
+  display:flex; align-items:center; gap:10px; margin-bottom:8px;
+}
+.jd-score-label { font-size:12px; color:var(--muted); width:110px; flex-shrink:0; }
+.jd-bar-track { flex:1; height:6px; background:rgba(26,26,46,0.07); border-radius:3px; overflow:hidden; }
+.jd-bar-fill { height:100%; border-radius:3px; transition:width 1s ease; }
+.jd-bar-fill.match { background:linear-gradient(90deg,#b388ff,#e040fb); }
+.jd-bar-fill.gap   { background:linear-gradient(90deg,#ff9a9a,#ff4444); }
+.jd-num { font-family:var(--display); font-size:12px; font-weight:800; color:var(--ink); width:36px; text-align:right; }
+.jd-keyword-list { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.jd-kw {
+  padding:3px 10px; border-radius:100px; font-size:11px; font-weight:600;
+  font-family: monospace;
+}
+.jd-kw.present { background:rgba(0,200,83,0.12); color:#007a30; }
+.jd-kw.missing { background:rgba(255,23,68,0.1); color:#b00020; }
+
+/* ── ATS PARSE PREVIEW ── */
+.ats-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media(max-width:600px){ .ats-grid { grid-template-columns:1fr; } }
+.ats-panel {
+  border-radius:12px; padding:1rem; border:1px solid rgba(26,26,46,0.08);
+}
+.ats-panel.raw { background:rgba(26,26,46,0.02); font-family:monospace; font-size:11px; color:var(--muted); line-height:1.8; }
+.ats-panel.parsed { background:rgba(224,64,251,0.03); }
+.ats-panel-label {
+  font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--muted); font-family:var(--display); margin-bottom:10px; display:block;
+}
+.ats-keyword-found { color: #007a30; background:rgba(0,200,83,0.1); padding:1px 4px; border-radius:3px; }
+.ats-keyword-miss  { color: #b00020; background:rgba(255,23,68,0.1); padding:1px 4px; border-radius:3px; }
+.ats-section-row {
+  display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:12px;
+}
+.ats-section-icon { width:16px; height:16px; border-radius:4px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; }
+.ats-ok  { background:rgba(0,200,83,0.15); color:#007a30; }
+.ats-warn{ background:rgba(255,152,0,0.15); color:#c65d00; }
+
 
 /* ─────────────────────────────── RESULTS */
 #results { min-height: 100vh; }
@@ -543,7 +901,7 @@ nav {
   top: 0;
   z-index: 50;
   padding: 1rem 2rem;
-  background: rgba(184,212,245,0.8);
+  background: rgba(245,244,240,0.92);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255,255,255,0.5);
   display: flex;
@@ -556,6 +914,7 @@ nav {
   padding: 4rem 2rem 3rem;
   text-align: center;
   position: relative;
+  background: var(--bg);
 }
 
 .verdict-eyebrow {
@@ -646,7 +1005,7 @@ nav {
   font-family: var(--display);
   font-size: 13px;
   font-weight: 700;
-  background: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.9);
   backdrop-filter: blur(8px);
   border: 1.5px solid rgba(255,255,255,0.9);
   color: var(--ink);
@@ -658,7 +1017,7 @@ nav {
   position: sticky;
   top: 58px;
   z-index: 40;
-  background: rgba(184,212,245,0.85);
+  background: rgba(245,244,240,0.92);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(255,255,255,0.5);
   padding: 0 2rem;
@@ -682,7 +1041,7 @@ nav {
   transition: all 0.18s;
 }
 .ctab:hover { color: var(--ink); }
-.ctab.active { color: var(--ink); border-bottom-color: var(--ink); }
+.ctab.active { color: var(--ink); border-bottom-color: var(--primary); }
 
 /* Main results layout */
 .results-body {
@@ -706,7 +1065,7 @@ nav {
 
 /* Glass card */
 .glass-card {
-  background: rgba(255,255,255,0.68);
+  background: rgba(255,255,255,0.82);
   backdrop-filter: blur(20px);
   border: 1.5px solid rgba(255,255,255,0.9);
   border-radius: 18px;
@@ -864,12 +1223,12 @@ nav {
 }
 
 .phrase-card.green-card {
-  background: rgba(200,240,215,0.7);
-  border: 1.5px solid rgba(150,220,180,0.8);
+  background: rgba(220,248,232,0.85);
+  border: 1.5px solid rgba(130,210,160,0.6);
 }
 .phrase-card.red-card {
-  background: rgba(255,220,220,0.7);
-  border: 1.5px solid rgba(255,170,170,0.8);
+  background: rgba(255,225,225,0.9);
+  border: 1.5px solid rgba(255,160,160,0.5);
 }
 
 .phrase-card-title {
@@ -935,12 +1294,12 @@ nav {
   line-height: 1.3;
 }
 .ptag.g {
-  background: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.9);
   color: #00703a;
   border: 1px solid rgba(0,120,60,0.25);
 }
 .ptag.r {
-  background: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.9);
   color: #c0001a;
   border: 1px solid rgba(200,0,30,0.2);
   text-decoration: line-through;
@@ -1094,68 +1453,81 @@ nav {
 </head>
 <body>
 
-<!-- Sky + clouds BG -->
-<div class="sky-bg"></div>
-<div class="clouds">
-  <div class="cloud c1"></div>
-  <div class="cloud c2"></div>
-  <div class="cloud c3"></div>
-  <div class="cloud c4"></div>
-  <div class="cloud c5"></div>
-</div>
-
 <!-- ═══════════════ LANDING ═══════════════ -->
 <div id="landing" class="page active">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <canvas id="bgCanvas"></canvas>
+
   <nav>
     <div class="logo-text">RoastMyResume</div>
-    <div class="nav-right">
-      <button class="pill-btn" onclick="openModal()">🔑 API Key</button>
-    </div>
+    <button class="pill-btn" onclick="openModal()">🔑 API Key</button>
   </nav>
 
   <div class="hero">
-    <p class="hero-sub" style="margin-bottom:0.5rem; font-size:13px; letter-spacing:0.04em; font-weight:500;">Our AI judges it like it's the final round of Squid Game for</p>
+    <span class="hero-eyebrow" id="heroEyebrow">your resume has 30 seconds to impress —</span>
 
-    <div class="company-row">
-      <div class="co-badge">M</div>
-      <div class="co-badge">⌘</div>
-      <div class="co-badge">A</div>
-      <div class="co-badge">G</div>
-      <div class="co-badge">N</div>
-    </div>
-
-    <h1 class="hero-headline">
-      Your Resume Has 30s to Live.<br>
-      <em>Will It Pass FAANG Recruiter?</em>
+    <h1 class="hero-headline" id="heroHead">
+      Will it<br><span class="outlined">pass?</span>
     </h1>
 
-    <div class="upload-card">
-      <div class="upload-dropzone" onclick="triggerUpload()" id="dropzone">
-        <div class="upload-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M10 3v10M6 7l4-4 4 4M3 15h14" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="upload-title">Drop your resume here</div>
-        <div class="upload-hint2">PDF or TXT — processed entirely in your browser</div>
-      </div>
-      <button class="upload-cta" onclick="triggerUpload()">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v9M4 5.5L8 2l4 3.5M1 13h14" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg>
-        Upload Resume
-      </button>
-      <p class="no-signup">*no signup required</p>
+    <p class="hero-sub" id="heroSub">AI recruiter simulation across 5 FAANG companies</p>
+
+    <div class="company-list" id="coList">
+      <span class="co-name">Meta</span>
+      <span class="co-name">Apple</span>
+      <span class="co-name">Amazon</span>
+      <span class="co-name">Google</span>
+      <span class="co-name">Netflix</span>
     </div>
 
-    <input type="file" id="fileInput" accept=".pdf,.txt" onchange="handleFile(event)">
+    <div class="upload-outer" id="uploadOuter">
+      <div class="drop-zone" id="dropzone" onclick="triggerUpload()">
+        <div class="resume-stack">
+          <div class="rs-card c3">
+            <div class="rs-line hdr"></div>
+            <div class="rs-line w100"></div>
+            <div class="rs-line w65"></div>
+          </div>
+          <div class="rs-card c2">
+            <div class="rs-line hdr"></div>
+            <div class="rs-line w100"></div>
+            <div class="rs-line w80"></div>
+            <div class="rs-line w50"></div>
+          </div>
+          <div class="rs-card c1">
+            <div class="rs-line hdr"></div>
+            <div class="rs-line w100"></div>
+            <div class="rs-line hi w80"></div>
+            <div class="rs-line w100"></div>
+            <div class="rs-line hi w65"></div>
+            <div class="rs-line w40"></div>
+            <div class="rs-beam"></div>
+          </div>
+        </div>
+        <div class="drop-label">Drop your resume here</div>
+        <div class="drop-sub">PDF or TXT · stays in your browser · no signup</div>
+      </div>
 
-    <div class="trust-row">
-      <div class="trust-stars">#1 AI Resume Roaster ★★★★★</div>
-      <div class="trust-sub">Trusted by 1,000+ students from Berkeley, Harvard, MIT, Stanford, Georgia Tech</div>
+      <button class="upload-cta" onclick="triggerUpload()">
+        <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+          <path d="M8.5 2v10M4.5 6L8.5 2l4 4M1 14h15" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Roast My Resume
+      </button>
+      <span class="no-signup">no data stored · processed locally in your browser</span>
+    </div>
+
+    <div class="trust-strip" id="trustStrip">
+      <p class="trust-text">trusted by students from <em>Berkeley · MIT · Stanford · Georgia Tech</em></p>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════ API MODAL ═══════════════ -->
+<input type="file" id="fileInput" accept=".pdf,.txt" onchange="handleFile(event)">
+
+<!-- ═══════════════ API MODAL ═══════════════ --><!-- ═══════════════ API MODAL ═══════════════ --><!-- ═══════════════ API MODAL ═══════════════ --><!-- ═══════════════ API MODAL ═══════════════ -->
 <div class="modal-overlay" id="apiModal">
   <div class="modal-box">
     <h2>Add Your API Key</h2>
@@ -1195,30 +1567,45 @@ nav {
 <div id="results" class="page">
   <div class="results-nav">
     <div class="logo-text">RoastMyResume</div>
-    <button class="pill-btn" onclick="reset()">↩ New Resume</button>
+    <div style="display:flex;gap:8px">
+      <button class="share-btn" onclick="generateShareCard()" title="Share your result">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M10 1l3 3-3 3M13 4H5a4 4 0 000 8h1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Share
+      </button>
+      <button class="pill-btn" onclick="reset()">↩ New</button>
+    </div>
   </div>
 
   <div id="errBox" style="display:none"></div>
 
-  <!-- VERDICT -->
-  <div class="verdict-section">
+  <!-- VERDICT with slot machine reveal -->
+  <div class="verdict-section" id="verdictSection" style="position:relative">
+    <!-- Slot machine overlay (shown first) -->
+    <div class="reveal-overlay" id="revealOverlay">
+      <div class="slot-label">Calculating your fate...</div>
+      <div class="slot-digits" id="slotDigits">00</div>
+      <div class="slot-sub">percentile rank</div>
+    </div>
     <div class="verdict-eyebrow">Your resume is getting</div>
     <span class="verdict-chrome" id="verdictChrome">Shortlisted</span>
     <div class="score-pill-row" id="scorePills"></div>
   </div>
 
-  <!-- Company tabs -->
+  <!-- Company tabs + compare toggle -->
   <div class="company-tabs" id="coTabs">
     <button class="ctab active" data-co="Meta" onclick="switchCo(this)">Meta</button>
     <button class="ctab" data-co="Apple" onclick="switchCo(this)">Apple</button>
     <button class="ctab" data-co="Amazon" onclick="switchCo(this)">Amazon</button>
     <button class="ctab" data-co="Google" onclick="switchCo(this)">Google</button>
     <button class="ctab" data-co="Netflix" onclick="switchCo(this)">Netflix</button>
+    <button class="ctab" data-co="__compare" onclick="switchCo(this)" style="margin-left:auto;color:var(--primary)">⊞ Compare All</button>
   </div>
 
-  <!-- Results body -->
   <div class="results-body" id="resultsBody"></div>
 </div>
+
+<!-- Shareable card overlay (off-screen render target) -->
+<div id="shareCardTarget" style="position:fixed;left:-9999px;top:0;width:600px;background:#09090f;padding:40px;border-radius:20px;font-family:'Cabinet Grotesk',sans-serif;"></div>
 
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -1456,7 +1843,7 @@ function renderResults(co) {
   vc.textContent = d.verdict;
   vc.className = 'verdict-chrome';
   if (d.verdict === 'Shortlisted') vc.classList.add('shortlisted');
-  if (d.verdict === 'Rejected') vc.classList.add('rejected');
+  if (d.verdict === 'Rejected')    vc.classList.add('rejected');
 
   // Score pills
   document.getElementById('scorePills').innerHTML = `
@@ -1465,10 +1852,44 @@ function renderResults(co) {
     <div class="score-pill">Tech ${d.techSkills}/100</div>
   `;
 
-  // Build histogram bars
+  // Slot machine reveal (only first time)
+  if (!window._slotShown) { window._slotShown = true; runSlotReveal(d.percentile); }
+  else { const ov = document.getElementById('revealOverlay'); if(ov) { ov.classList.add('done'); } }
+
+  buildResultsBody(co, d);
+}
+
+// ── SLOT MACHINE REVEAL ──
+function runSlotReveal(target) {
+  const ov = document.getElementById('revealOverlay');
+  const sd = document.getElementById('slotDigits');
+  if (!ov || !sd) return;
+  let current = 0, speed = 50, startTime = Date.now();
+  const duration = 2200;
+  const tick = () => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 4);
+    if (progress < 0.85) {
+      current = Math.floor(Math.random() * 100);
+    } else {
+      current = Math.round(target * eased + (Math.random() * 4 - 2) * (1 - progress));
+    }
+    current = Math.max(0, Math.min(99, current));
+    sd.textContent = String(current).padStart(2,'0');
+    if (progress < 1) { setTimeout(tick, speed + elapsed * 0.03); }
+    else {
+      sd.textContent = String(target).padStart(2,'0');
+      setTimeout(() => { ov.classList.add('done'); }, 600);
+    }
+  };
+  tick();
+}
+
+// ── BUILD RESULTS BODY ──
+function buildResultsBody(co, d) {
   const bars = Array.from({length:24}, (_,i) => {
-    const x = i/23;
-    const h = Math.max(8, (Math.sin(x*Math.PI)*0.7 + 0.15 + Math.random()*0.15)*100);
+    const x = i/23, h = Math.max(8,(Math.sin(x*Math.PI)*0.7+0.15+Math.random()*0.15)*100);
     const you = Math.abs(x*100 - d.percentile) < 3;
     return `<div class="hbar${you?' you':''}" style="height:${h}%"></div>`;
   }).join('');
@@ -1477,156 +1898,625 @@ function renderResults(co) {
   body.innerHTML = '';
 
   // ── Row 1: Score + Notes ──
-  const row1 = document.createElement('div');
-  row1.className = 'two-col';
-  row1.innerHTML = `
-    <!-- Score card -->
-    <div class="glass-card" style="animation-delay:0.05s">
+  const r1 = document.createElement('div');
+  r1.className = 'two-col';
+  r1.innerHTML = `
+    <div class="glass-card" style="animation-delay:.05s">
       <div class="card-eyebrow">Percentile Rank · ${co}</div>
       <div class="pct-big" id="pctNum">0</div>
-      <div class="pct-label">Top <strong>${d.percentile}th percentile</strong> among ${co} applicants</div>
+      <div class="pct-label">Top <strong>${d.percentile}th percentile</strong> for ${co}</div>
       <div class="histogram">${bars}</div>
       <div class="sub-row">
-        <div class="sub-box">
-          <div class="sub-lbl">Culture Fit</div>
-          <div class="sub-val">${d.cultureFit}<span>/100</span></div>
-        </div>
-        <div class="sub-box">
-          <div class="sub-lbl">Tech Skills</div>
-          <div class="sub-val">${d.techSkills}<span>/100</span></div>
-        </div>
+        <div class="sub-box"><div class="sub-lbl">Culture Fit</div><div class="sub-val">${d.cultureFit}<span>/100</span></div></div>
+        <div class="sub-box"><div class="sub-lbl">Tech Skills</div><div class="sub-val">${d.techSkills}<span>/100</span></div></div>
       </div>
     </div>
-
-    <!-- Notes card -->
-    <div class="glass-card" style="animation-delay:0.1s">
+    <div class="glass-card" style="animation-delay:.1s">
       <div class="card-eyebrow">Candidate Notes</div>
       <div class="note-list">
-        ${d.strengths.map(s=>`
-          <div class="note-row">
-            <div class="note-dot pos">✓</div>
-            <span>${s}</span>
-          </div>`).join('')}
-        ${d.weaknesses.map(w=>`
-          <div class="note-row">
-            <div class="note-dot neg">✗</div>
-            <span>${w}</span>
-          </div>`).join('')}
+        ${d.strengths.map(s=>`<div class="note-row"><div class="note-dot pos">✓</div><span>${s}</span></div>`).join('')}
+        ${d.weaknesses.map(w=>`<div class="note-row"><div class="note-dot neg">✗</div><span>${w}</span></div>`).join('')}
       </div>
-    </div>
-  `;
-  body.appendChild(row1);
+    </div>`;
+  body.appendChild(r1);
+  animateNum('pctNum', 0, d.percentile, 1200);
 
-  // Animate percentile counter
-  animateNum('pctNum', 0, d.percentile, 1100);
+  // ── Radar Chart ──
+  const radarCard = document.createElement('div');
+  radarCard.className = 'glass-card full';
+  radarCard.style.cssText = 'margin-bottom:1.25rem;animation-delay:.12s';
+  radarCard.innerHTML = `<div class="card-eyebrow">Skill Radar · ${co}</div><div class="radar-wrap"><canvas id="radarCanvas" width="320" height="260"></canvas></div>`;
+  body.appendChild(radarCard);
+  setTimeout(() => drawRadar(d), 100);
 
-  // ── Recruiter note ──
+  // ── Recruiter Scan Simulation ──
+  const scanCard = buildScanCard(d);
+  body.appendChild(scanCard);
+
+  // ── Recruiter Note ──
   const recCard = document.createElement('div');
   recCard.className = 'glass-card full';
-  recCard.style.cssText = 'margin-bottom:1.25rem;animation-delay:0.15s';
-  recCard.innerHTML = `
-    <div class="card-eyebrow">How ${co} recruiters see you</div>
-    <div class="rec-note-box">${d.recruiterNote}</div>
-  `;
+  recCard.style.cssText = 'margin-bottom:1.25rem;animation-delay:.2s';
+  recCard.innerHTML = `<div class="card-eyebrow">How ${co} recruiters see you</div><div class="rec-note-box">${d.recruiterNote}</div>`;
   body.appendChild(recCard);
 
-  // ── Words that hire + Red flags ──
+  // ── Phrases ──
   const phRow = document.createElement('div');
   phRow.className = 'two-phrases';
-  phRow.innerHTML = `
-    <div class="phrase-card green-card" style="animation-delay:0.2s">
-      <div class="phrase-with-resume">
-        <div>
-          <div class="phrase-card-title">Words that<br>Hire you</div>
-          <div class="phrase-card-sub">These are most<br>deciding words about you</div>
-        </div>
-        <div class="mini-resume">
-          <div class="mr-line w50" style="background:#ddd;height:7px;margin-bottom:8px"></div>
-          ${d.strongPhrases.slice(0,3).map((_,i)=>`
-            <div class="mr-line ${['hl-g w100','hl-g w80','w65'][i]}"></div>
-          `).join('')}
-          <div class="mr-line w40" style="background:#eee;margin:8px 0 6px"></div>
-          ${d.strongPhrases.slice(3,6).map((_,i)=>`
-            <div class="mr-line ${['hl-g w100','w80','hl-g w65'][i]}"></div>
-          `).join('')}
-        </div>
-      </div>
-      <div class="phrase-tags" style="margin-top:1rem">
-        ${d.strongPhrases.map(p=>`<span class="ptag g">${p}</span>`).join('')}
-      </div>
-    </div>
-
-    <div class="phrase-card red-card" style="animation-delay:0.25s">
-      <div class="phrase-with-resume">
-        <div>
-          <div class="phrase-card-title">Red Flags that<br>Hurt you</div>
-          <div class="phrase-card-sub">Stuff that screams<br>'next applicant.'</div>
-        </div>
-        <div class="mini-resume">
-          <div class="mr-line w50" style="background:#ddd;height:7px;margin-bottom:8px;text-decoration:line-through"></div>
-          ${d.weakPhrases.slice(0,3).map((_,i)=>`
-            <div class="mr-line ${['hl-r w100','hl-r w80','w65'][i]}"></div>
-          `).join('')}
-          <div class="mr-line w40" style="background:#eee;margin:8px 0 6px"></div>
-          ${d.weakPhrases.slice(3,6).map((_,i)=>`
-            <div class="mr-line ${['hl-r w100','w80','hl-r w65'][i]}"></div>
-          `).join('')}
-        </div>
-      </div>
-      <div class="phrase-tags" style="margin-top:1rem">
-        ${d.weakPhrases.map(p=>`<span class="ptag r">${p}</span>`).join('')}
-      </div>
-    </div>
-  `;
+  phRow.innerHTML = buildPhrasesHTML(d);
   body.appendChild(phRow);
 
-  // ── PDF Highlights section ──
+  // ── Before/After Rewrites ──
+  const rwCard = buildRewriteCard(d);
+  body.appendChild(rwCard);
+
+  // ── PDF Highlights ──
   const pdfCard = document.createElement('div');
   pdfCard.className = 'glass-card full pdf-section';
-  pdfCard.style.cssText = 'margin-bottom:1.25rem;animation-delay:0.3s';
+  pdfCard.style.cssText = 'margin-bottom:1.25rem;animation-delay:.32s';
   pdfCard.innerHTML = `
-    <div class="card-eyebrow">Resume Highlights — What sticks in the blink</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:1rem;">
-      A recruiter scans a résumé for 5–7 seconds before making a call. 
-      <span style="background:rgba(0,200,83,0.2);padding:1px 6px;border-radius:3px;color:#00703a">Green</span> = strong, 
-      <span style="background:rgba(255,23,68,0.15);padding:1px 6px;border-radius:3px;color:#c0001a">Red</span> = hurts you.
+    <div class="card-eyebrow">Resume Highlights</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1rem">
+      <span style="background:rgba(0,200,83,0.2);padding:1px 7px;border-radius:3px;color:#007a30">Green</span> = strong signal &nbsp;
+      <span style="background:rgba(255,23,68,0.12);padding:1px 7px;border-radius:3px;color:#b00020">Red</span> = hurts you
     </div>
-    <div class="pdf-canvas-wrap">
-      <canvas id="pdfCanvas"></canvas>
-      <div id="overlayLayer"></div>
-    </div>
-  `;
+    <div class="pdf-canvas-wrap"><canvas id="pdfCanvas"></canvas><div id="overlayLayer"></div></div>`;
   body.appendChild(pdfCard);
+  if (pdfDoc) setTimeout(() => renderPdfOverlay(d), 150);
+  else pdfCard.querySelector('.pdf-canvas-wrap').innerHTML = `<div style="padding:2rem;text-align:center;color:var(--muted);font-size:13px">Upload a PDF to see overlay highlights.</div>`;
 
-  // Render PDF with overlays
-  if (pdfDoc) {
-    setTimeout(() => renderPdfOverlay(d), 100);
-  } else {
-    pdfCard.querySelector('.pdf-canvas-wrap').innerHTML = `
-      <div style="padding:2rem;text-align:center;color:var(--muted);font-size:13px">
-        PDF preview not available for text files — upload a PDF to see overlay highlights.
-      </div>`;
-  }
+  // ── ATS Preview ──
+  const atsCard = buildATSCard(d);
+  body.appendChild(atsCard);
 
-  // ── Improvements ──
-  const impCard = document.createElement('div');
-  impCard.className = 'glass-card full';
-  impCard.style.cssText = 'animation-delay:0.35s';
-  impCard.innerHTML = `
-    <div class="card-eyebrow">Improvement Playbook</div>
-    <div class="improv-list">
-      ${(d.improvements||[]).map((imp,i)=>`
-        <div class="improv-item">
-          <div class="improv-num">0${i+1}</div>
-          <div class="improv-content">
-            <div class="improv-badge ${imp.priority?.toLowerCase()}">${imp.priority||'HIGH'}</div>
-            <div class="improv-text"><strong>${imp.issue}</strong><br><span style="color:var(--muted)">${imp.fix}</span></div>
-          </div>
-        </div>
-      `).join('')}
+  // ── JD Analyzer ──
+  const jdCard = buildJDCard(co);
+  body.appendChild(jdCard);
+
+  // ── Recruiter Chat ──
+  const chatCard = buildChatCard(co, d);
+  body.appendChild(chatCard);
+}
+
+// ── RADAR CHART ──
+function drawRadar(d) {
+  const canvas = document.getElementById('radarCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const cx = 160, cy = 130, R = 100;
+  const axes = ['Impact','Tech Depth','Clarity','Scale','Leadership','ATS Score'];
+  // Derive from available scores
+  const vals = [
+    Math.min(d.techSkills, d.percentile) / 100,
+    d.techSkills / 100,
+    d.cultureFit / 100,
+    (d.percentile * 0.8 + d.techSkills * 0.2) / 100,
+    (d.cultureFit * 0.7 + d.techSkills * 0.3) / 100,
+    (d.percentile * 0.9) / 100,
+  ].map(v => Math.max(0.15, Math.min(0.97, v)));
+
+  ctx.clearRect(0,0,320,260);
+
+  // Grid rings
+  [0.25,0.5,0.75,1].forEach(r => {
+    ctx.beginPath();
+    axes.forEach((_, i) => {
+      const a = (i / axes.length) * Math.PI * 2 - Math.PI/2;
+      const x = cx + Math.cos(a) * R * r, y = cy + Math.sin(a) * R * r;
+      i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(26,26,46,0.08)'; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  // Spokes
+  axes.forEach((_,i) => {
+    const a = (i/axes.length)*Math.PI*2 - Math.PI/2;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx + Math.cos(a)*R, cy + Math.sin(a)*R);
+    ctx.strokeStyle='rgba(26,26,46,0.07)'; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  // Data polygon — animate
+  let progress = 0;
+  const animate = () => {
+    progress = Math.min(progress + 0.04, 1);
+    const ease = 1 - Math.pow(1-progress,3);
+    ctx.clearRect(0,0,320,260);
+    // Redraw grid
+    [0.25,0.5,0.75,1].forEach(r=>{
+      ctx.beginPath();
+      axes.forEach((_,i)=>{
+        const a=(i/axes.length)*Math.PI*2-Math.PI/2;
+        const x=cx+Math.cos(a)*R*r, y=cy+Math.sin(a)*R*r;
+        i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }); ctx.closePath();
+      ctx.strokeStyle='rgba(26,26,46,0.08)'; ctx.lineWidth=1; ctx.stroke();
+    });
+    axes.forEach((_,i)=>{
+      const a=(i/axes.length)*Math.PI*2-Math.PI/2;
+      ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.lineTo(cx+Math.cos(a)*R, cy+Math.sin(a)*R);
+      ctx.strokeStyle='rgba(26,26,46,0.07)'; ctx.lineWidth=1; ctx.stroke();
+    });
+    // Filled polygon
+    ctx.beginPath();
+    vals.forEach((v,i) => {
+      const a=(i/vals.length)*Math.PI*2-Math.PI/2;
+      const rv = v * ease * R;
+      const x=cx+Math.cos(a)*rv, y=cy+Math.sin(a)*rv;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }); ctx.closePath();
+    ctx.fillStyle='rgba(179,136,255,0.18)'; ctx.fill();
+    ctx.strokeStyle='rgba(179,136,255,0.8)'; ctx.lineWidth=2; ctx.stroke();
+    // Dots + labels
+    vals.forEach((v,i) => {
+      const a=(i/vals.length)*Math.PI*2-Math.PI/2;
+      const rv=v*ease*R;
+      const x=cx+Math.cos(a)*rv, y=cy+Math.sin(a)*rv;
+      ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2);
+      ctx.fillStyle='#b388ff'; ctx.fill();
+      // Labels
+      const lx=cx+Math.cos(a)*(R+18), ly=cy+Math.sin(a)*(R+18);
+      ctx.fillStyle='rgba(26,26,46,0.5)'; ctx.font='10px "Cabinet Grotesk",sans-serif';
+      ctx.textAlign = lx < cx-5 ? 'right' : lx > cx+5 ? 'left' : 'center';
+      ctx.textBaseline = ly < cy-5 ? 'bottom' : ly > cy+5 ? 'top' : 'middle';
+      ctx.fillText(axes[i], lx, ly);
+    });
+    if (progress < 1) requestAnimationFrame(animate);
+  };
+  requestAnimationFrame(animate);
+}
+
+// ── RECRUITER SCAN SIMULATION ──
+function buildScanCard(d) {
+  const card = document.createElement('div');
+  card.className = 'scan-simulation glass-card full';
+  card.style.cssText = 'animation-delay:.15s;margin-bottom:1.25rem;padding:0;overflow:hidden';
+
+  const lines = resumeText.slice(0,600).split('\n').filter(l=>l.trim()).slice(0,14);
+  const linesHTML = lines.map(l => `<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.replace(/</g,'&lt;').slice(0,80)}</div>`).join('');
+
+  const moments = [
+    { t:0.5, text: '👤 Name & contact — found', yPct: 2 },
+    { t:1.2, text: '💼 Current role — checking...', yPct: 18 },
+    { t:2.0, text: '📊 Metrics spotted — good sign', yPct: 32 },
+    { t:2.8, text: '🛠 Tech stack — scanning', yPct: 48 },
+    { t:3.6, text: '⚠ Weak bullets detected', yPct: 62 },
+    { t:4.5, text: '✅ Strong phrases found', yPct: 45 },
+    { t:5.5, text: '📋 Projects section — present', yPct: 75 },
+    { t:6.5, text: '🎓 Education — noted', yPct: 88 },
+  ];
+
+  card.innerHTML = `
+    <div class="scan-header">
+      <div class="scan-timer" id="scanTimer">
+        <div class="scan-timer-fill" id="scanFill"></div>
+        <span id="scanCount">7</span>
+      </div>
+      <div>
+        <div class="scan-title">Recruiter Scan Simulation</div>
+        <div class="scan-subtitle">Watch what catches a recruiter's eye in 7 seconds</div>
+      </div>
+      <button onclick="startScan()" style="margin-left:auto;padding:8px 16px;border-radius:10px;border:1.5px solid rgba(26,26,46,0.12);background:white;font-family:var(--display);font-size:12px;font-weight:700;cursor:pointer;color:var(--ink)" id="scanBtn">▶ Start</button>
     </div>
-  `;
-  body.appendChild(impCard);
+    <div class="scan-progress-bar"><div class="scan-progress-fill" id="scanBar"></div></div>
+    <div class="scan-resume-wrap" id="scanWrap">
+      <div class="scan-resume-text">${linesHTML}</div>
+      <div class="scan-spotlight" id="scanSpot" style="display:none"></div>
+      <div class="scan-callout" id="scanCallout"></div>
+    </div>
+    <div class="scan-final-msg" id="scanFinal">
+      <strong>${d.verdict === 'Shortlisted' ? '✅ Would read further' : d.verdict === 'On the Fence' ? '🤔 Borderline — would skim more' : '❌ Passed to next candidate'}</strong>
+      Based on first 7 seconds, a ${currentCo} recruiter would <em>${d.verdict === 'Shortlisted' ? 'continue reading' : d.verdict === 'On the Fence' ? 'spend a few more seconds' : 'likely move on'}</em>.
+    </div>`;
+
+  window._scanMoments = moments;
+  return card;
+}
+
+function startScan() {
+  const btn = document.getElementById('scanBtn');
+  const spot = document.getElementById('scanSpot');
+  const callout = document.getElementById('scanCallout');
+  const bar = document.getElementById('scanBar');
+  const count = document.getElementById('scanCount');
+  const fill = document.getElementById('scanFill');
+  const final = document.getElementById('scanFinal');
+  const wrap = document.getElementById('scanWrap');
+  if (!spot) return;
+
+  btn.disabled = true; btn.textContent = 'Scanning...';
+  spot.style.display = 'block'; callout.classList.remove('visible');
+  final.style.display = 'none';
+
+  const totalMs = 7000;
+  const start = Date.now();
+  const moments = window._scanMoments || [];
+  let momentIdx = 0;
+  const wrapH = wrap.offsetHeight - 50;
+
+  const tick = () => {
+    const elapsed = (Date.now() - start) / 1000;
+    const pct = Math.min(elapsed / 7, 1);
+    bar.style.width = (pct * 100) + '%';
+    count.textContent = Math.max(0, Math.ceil(7 - elapsed));
+
+    // Conic gradient for timer circle
+    fill.style.background = `conic-gradient(rgba(179,136,255,0.4) ${pct*360}deg, transparent 0deg)`;
+
+    // Move spotlight
+    const yPct = (Math.sin(elapsed * 0.8) * 0.3 + 0.5) * 0.85;
+    const spotY = yPct * wrapH + 50;
+    spot.style.top = spotY + 'px';
+
+    // Trigger moments
+    if (momentIdx < moments.length && elapsed >= moments[momentIdx].t) {
+      const m = moments[momentIdx];
+      callout.textContent = m.text;
+      callout.style.top = (m.yPct / 100 * wrapH + 40) + 'px';
+      callout.classList.add('visible');
+      momentIdx++;
+      setTimeout(() => callout.classList.remove('visible'), 1200);
+    }
+
+    if (pct < 1) { requestAnimationFrame(tick); }
+    else {
+      spot.style.display = 'none'; callout.classList.remove('visible');
+      bar.style.width = '100%'; count.textContent = '0';
+      final.style.display = 'block';
+      btn.disabled = false; btn.textContent = '↺ Replay';
+    }
+  };
+  requestAnimationFrame(tick);
+}
+
+// ── BEFORE/AFTER REWRITES ──
+function buildRewriteCard(d) {
+  const card = document.createElement('div');
+  card.className = 'glass-card full';
+  card.style.cssText = 'margin-bottom:1.25rem;animation-delay:.28s';
+  const items = (d.improvements || []).filter(i => i.fix && i.issue);
+  card.innerHTML = `
+    <div class="card-eyebrow">Before / After Rewrites</div>
+    <div>
+      ${items.map((imp,i) => `
+        <div class="rewrite-item">
+          <div class="rewrite-panels">
+            <div class="rewrite-panel before">
+              <div class="rewrite-panel-label">❌ Original</div>
+              <div class="rewrite-text">${imp.issue}</div>
+            </div>
+            <div class="rewrite-panel after">
+              <div class="rewrite-panel-label">✅ Rewritten</div>
+              <div class="rewrite-text" id="rw-text-${i}">${imp.fix}</div>
+            </div>
+          </div>
+          <div class="rewrite-footer">
+            <span class="rewrite-badge rb-${(imp.priority||'high').toLowerCase()}">${imp.priority||'HIGH'}</span>
+            <button class="copy-btn" onclick="copyRewrite(${i},'rw-text-${i}',this)">Copy ↗</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  return card;
+}
+
+function copyRewrite(i, id, btn) {
+  const txt = document.getElementById(id)?.textContent || '';
+  navigator.clipboard.writeText(txt).then(() => {
+    btn.textContent = '✓ Copied'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy ↗'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── PHRASES HTML ──
+function buildPhrasesHTML(d) {
+  const mrLines = (arr, cls) => arr.slice(0,3).map((_,i) =>
+    `<div class="mr-line ${i===1?cls:''} ${['w100','w80','w65'][i]}"></div>`).join('');
+  return `
+    <div class="phrase-card green-card" style="animation-delay:.22s">
+      <div class="phrase-with-resume">
+        <div><div class="phrase-card-title">Words that<br>Hire you</div><div class="phrase-card-sub">These are most<br>deciding words</div></div>
+        <div class="mini-resume">
+          <div class="mr-line w50" style="background:#ddd;height:7px;margin-bottom:8px"></div>
+          ${mrLines(d.strongPhrases,'hl-g')}
+          <div class="mr-line w40" style="background:#eee;margin:6px 0"></div>
+          ${mrLines(d.strongPhrases.slice(3),'hl-g')}
+        </div>
+      </div>
+      <div class="phrase-tags" style="margin-top:1rem">${d.strongPhrases.map(p=>`<span class="ptag g">${p}</span>`).join('')}</div>
+    </div>
+    <div class="phrase-card red-card" style="animation-delay:.26s">
+      <div class="phrase-with-resume">
+        <div><div class="phrase-card-title">Red Flags that<br>Hurt you</div><div class="phrase-card-sub">Stuff that screams<br>'next applicant.'</div></div>
+        <div class="mini-resume">
+          <div class="mr-line w50" style="background:#ddd;height:7px;margin-bottom:8px"></div>
+          ${mrLines(d.weakPhrases,'hl-r')}
+          <div class="mr-line w40" style="background:#eee;margin:6px 0"></div>
+          ${mrLines(d.weakPhrases.slice(3),'hl-r')}
+        </div>
+      </div>
+      <div class="phrase-tags" style="margin-top:1rem">${d.weakPhrases.map(p=>`<span class="ptag r">${p}</span>`).join('')}</div>
+    </div>`;
+}
+
+// ── ATS PARSE PREVIEW ──
+function buildATSCard(d) {
+  const card = document.createElement('div');
+  card.className = 'glass-card full';
+  card.style.cssText = 'margin-bottom:1.25rem;animation-delay:.35s';
+
+  const rawText = resumeText.slice(0,400).replace(/</g,'&lt;');
+  const keywords = [...(d.strongPhrases||[]), ...(d.weakPhrases||[])];
+  let highlighted = rawText;
+  (d.strongPhrases||[]).forEach(p => {
+    highlighted = highlighted.replace(new RegExp(p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),
+      m => `<span class="ats-keyword-found">${m}</span>`);
+  });
+  (d.weakPhrases||[]).forEach(p => {
+    highlighted = highlighted.replace(new RegExp(p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),
+      m => `<span class="ats-keyword-miss">${m}</span>`);
+  });
+
+  const sections = ['Contact Info','Experience','Skills','Education','Projects'];
+  const detected = sections.map(s => ({
+    name: s,
+    found: resumeText.toLowerCase().includes(s.toLowerCase().split(' ')[0])
+  }));
+
+  card.innerHTML = `
+    <div class="card-eyebrow">ATS Parse Preview</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:1rem">What the robot actually reads from your PDF vs what you think it sees.</p>
+    <div class="ats-grid">
+      <div class="ats-panel raw">
+        <span class="ats-panel-label">Raw extracted text</span>
+        ${rawText.slice(0,350)}...
+      </div>
+      <div class="ats-panel parsed">
+        <span class="ats-panel-label">Keyword detection</span>
+        ${detected.map(s => `
+          <div class="ats-section-row">
+            <div class="ats-section-icon ${s.found?'ats-ok':'ats-warn'}">${s.found?'✓':'?'}</div>
+            <span style="font-size:12px;color:var(--ink2)">${s.name}</span>
+            <span style="font-size:11px;color:var(--muted);margin-left:auto">${s.found?'detected':'not found'}</span>
+          </div>`).join('')}
+        <div style="margin-top:10px;border-top:1px solid rgba(26,26,46,0.07);padding-top:10px">
+          <span class="ats-panel-label">Highlighted keywords</span>
+          <div style="font-size:11.5px;line-height:2">${highlighted.slice(0,500)}...</div>
+        </div>
+      </div>
+    </div>`;
+  return card;
+}
+
+// ── JD ANALYZER ──
+function buildJDCard(co) {
+  const card = document.createElement('div');
+  card.className = 'glass-card full';
+  card.style.cssText = 'margin-bottom:1.25rem;animation-delay:.38s';
+  card.innerHTML = `
+    <div class="card-eyebrow">Job Description Analyzer</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:1rem">Paste a JD to get a tailored match score and see exactly which keywords you're missing.</p>
+    <textarea class="jd-input" id="jdInput" placeholder="Paste a job description here..."></textarea>
+    <button onclick="analyzeJD('${co}')" style="padding:11px 22px;background:var(--ink);color:white;border:none;border-radius:12px;font-family:var(--display);font-size:13px;font-weight:700;cursor:pointer">Analyze Match →</button>
+    <div class="jd-result" id="jdResult" style="display:none"></div>`;
+  return card;
+}
+
+async function analyzeJD(co) {
+  const jd = document.getElementById('jdInput').value.trim();
+  if (!jd) { alert('Please paste a job description'); return; }
+  const res = document.getElementById('jdResult');
+  res.style.display = 'block';
+  res.innerHTML = `<div style="padding:1rem;text-align:center;color:var(--muted);font-size:13px">Analyzing match...</div>`;
+
+  const prompt = `You are an ATS and recruiter evaluating a resume against a job description.
+
+Resume (first 2000 chars): ${resumeText.slice(0,2000)}
+
+Job Description: ${jd.slice(0,1500)}
+
+Return ONLY valid JSON:
+{
+  "matchScore": <0-100 overall match>,
+  "keywordMatch": <0-100>,
+  "experienceMatch": <0-100>,
+  "presentKeywords": ["<keywords from JD that appear in resume>"],
+  "missingKeywords": ["<important JD keywords absent from resume>"],
+  "tailoringTips": ["<2-3 specific changes to better match this JD>"]
+}`;
+
+  try {
+    const data = await callAI(prompt, 800);
+    const m = data.match(/\{[\s\S]*\}/);
+    const r = JSON.parse(m[0]);
+    res.innerHTML = `
+      <div style="margin-top:1rem">
+        <div class="jd-score-row">
+          <span class="jd-score-label">Overall Match</span>
+          <div class="jd-bar-track"><div class="jd-bar-fill match" style="width:${r.matchScore}%"></div></div>
+          <span class="jd-num">${r.matchScore}%</span>
+        </div>
+        <div class="jd-score-row">
+          <span class="jd-score-label">Keyword Match</span>
+          <div class="jd-bar-track"><div class="jd-bar-fill match" style="width:${r.keywordMatch}%"></div></div>
+          <span class="jd-num">${r.keywordMatch}%</span>
+        </div>
+        <div class="jd-score-row">
+          <span class="jd-score-label">Experience Fit</span>
+          <div class="jd-bar-track"><div class="jd-bar-fill match" style="width:${r.experienceMatch}%"></div></div>
+          <span class="jd-num">${r.experienceMatch}%</span>
+        </div>
+        <div style="margin-top:12px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px;font-family:var(--display)">KEYWORDS PRESENT</div>
+          <div class="jd-keyword-list">${(r.presentKeywords||[]).map(k=>`<span class="jd-kw present">✓ ${k}</span>`).join('')}</div>
+        </div>
+        <div style="margin-top:10px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:6px;font-family:var(--display)">MISSING KEYWORDS</div>
+          <div class="jd-keyword-list">${(r.missingKeywords||[]).map(k=>`<span class="jd-kw missing">✗ ${k}</span>`).join('')}</div>
+        </div>
+        ${r.tailoringTips?.length ? `
+        <div style="margin-top:12px;padding:12px;background:rgba(26,26,46,0.03);border-radius:10px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;font-family:var(--display)">TAILORING TIPS</div>
+          ${r.tailoringTips.map(t=>`<div style="font-size:13px;color:var(--ink2);padding:5px 0;border-bottom:1px solid rgba(26,26,46,0.06)">→ ${t}</div>`).join('')}
+        </div>` : ''}`;
+  } catch(e) { res.innerHTML = `<div style="color:#b00020;font-size:13px;padding:1rem">Error: ${e.message}</div>`; }
+}
+
+// ── RECRUITER CHAT ──
+function buildChatCard(co, d) {
+  const card = document.createElement('div');
+  card.className = 'glass-card full';
+  card.style.cssText = 'animation-delay:.42s';
+  const suggestions = [
+    `Why did you ${d.verdict === 'Shortlisted' ? 'shortlist' : 'reject'} me?`,
+    'What would get me to shortlisted?',
+    'What skills am I missing?',
+    'How do I improve my bullet points?'
+  ];
+  card.innerHTML = `
+    <div class="card-eyebrow">Ask the Recruiter · ${co}</div>
+    <div class="chat-suggested" id="chatSuggest">
+      ${suggestions.map(s=>`<button class="chat-suggest-btn" onclick="sendChat('${s.replace(/'/,"\\'")}','${co}')">${s}</button>`).join('')}
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg rec">
+        <div class="chat-avatar rec">R</div>
+        <div class="chat-bubble">Hi! I'm the simulated ${co} recruiter who just reviewed your resume. I gave you a verdict of <strong>${d.verdict}</strong>. Ask me anything about my decision.</div>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" placeholder="Ask the recruiter anything..." onkeydown="if(event.key==='Enter')sendChat(null,'${co}')">
+      <button class="chat-send" onclick="sendChat(null,'${co}')">Send →</button>
+    </div>`;
+  return card;
+}
+
+let chatHistory = [];
+async function sendChat(presetMsg, co) {
+  const input = document.getElementById('chatInput');
+  const messages = document.getElementById('chatMessages');
+  const msg = presetMsg || input?.value.trim();
+  if (!msg) return;
+  if (input) input.value = '';
+
+  // Hide suggestions after first message
+  const suggest = document.getElementById('chatSuggest');
+  if (suggest) suggest.style.display = 'none';
+
+  // Add user bubble
+  messages.innerHTML += `
+    <div class="chat-msg user">
+      <div class="chat-avatar usr">U</div>
+      <div class="chat-bubble">${msg}</div>
+    </div>`;
+
+  // Typing indicator
+  messages.innerHTML += `
+    <div class="chat-msg rec" id="typingMsg">
+      <div class="chat-avatar rec">R</div>
+      <div class="chat-bubble"><div class="chat-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
+    </div>`;
+  messages.scrollTop = messages.scrollHeight;
+
+  chatHistory.push({ role:'user', content: msg });
+
+  const systemPrompt = `You are a senior ${co} technical recruiter. You just reviewed this resume and gave it a verdict of "${cache[co]?.verdict}". The analysis: ${JSON.stringify({percentile:cache[co]?.percentile,strengths:cache[co]?.strengths,weaknesses:cache[co]?.weaknesses})}. 
+  
+  Resume excerpt: ${resumeText.slice(0,1000)}
+  
+  Answer questions about your hiring decision. Be specific, blunt, and stay in character as a ${co} recruiter. Keep responses under 150 words.`;
+
+  try {
+    const fullHistory = [{ role:'user', content: `[CONTEXT: ${systemPrompt}]\n\nFirst message from candidate: ${msg}` }];
+    if (chatHistory.length > 1) {
+      fullHistory.push(...chatHistory.slice(1).map(m => ({role:m.role, content:m.content})));
+    }
+    const response = await callAI(msg, 400, systemPrompt);
+    chatHistory.push({ role:'assistant', content: response });
+
+    document.getElementById('typingMsg')?.remove();
+    messages.innerHTML += `
+      <div class="chat-msg rec">
+        <div class="chat-avatar rec">R</div>
+        <div class="chat-bubble">${response}</div>
+      </div>`;
+    messages.scrollTop = messages.scrollHeight;
+  } catch(e) {
+    document.getElementById('typingMsg')?.remove();
+    messages.innerHTML += `<div class="chat-msg rec"><div class="chat-avatar rec">R</div><div class="chat-bubble" style="color:#b00020">Error: ${e.message}</div></div>`;
+  }
+}
+
+// ── COMPANY COMPARISON VIEW ──
+function showCompareView() {
+  const body = document.getElementById('resultsBody');
+  body.innerHTML = `
+    <div class="glass-card full" style="animation-delay:.05s">
+      <div class="card-eyebrow">All Companies — Comparison</div>
+      <div id="compareRows" style="margin-top:.5rem">
+        ${['Meta','Apple','Amazon','Google','Netflix'].map(co => {
+          const d = cache[co];
+          const verdictClass = d ? (d.verdict==='Shortlisted'?'cvp-shortlisted':d.verdict==='Rejected'?'cvp-rejected':'cvp-fence') : 'cvp-fence';
+          const verdictText = d ? d.verdict : '—';
+          return `<div class="compare-row">
+            <div class="compare-co">${co}</div>
+            <div class="compare-track"><div class="compare-fill" id="cf-${co}" style="width:${d?d.percentile:0}%"></div></div>
+            <div class="compare-num">${d ? d.percentile : '?'}</div>
+            <div class="compare-verdict-pill ${verdictClass}">${verdictText}</div>
+            ${!d ? `<button onclick="fetchAndShow('${co}')" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(26,26,46,0.12);background:white;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--display);white-space:nowrap">Analyze →</button>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+async function fetchAndShow(co) {
+  if (!cache[co]) {
+    try { await doAnalysis(co); } catch(e) { showErr(e.message); return; }
+  }
+  // Refresh compare view
+  showCompareView();
+}
+
+// ── SHARED AI CALL HELPER ──
+async function callAI(prompt, maxTokens=1200, systemMsg='') {
+  let res;
+  if (provider === 'claude') {
+    const msgs = systemMsg
+      ? [{ role:'user', content: `${systemMsg}\n\n${prompt}` }]
+      : [{ role:'user', content: prompt }];
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:maxTokens, messages:msgs })
+    });
+    if (!res.ok) { const e=await res.json().catch(()=>{}); throw new Error(e?.error?.message||`API ${res.status}`); }
+    const data = await res.json();
+    return data.content[0].text;
+  } else if (provider === 'openai') {
+    const msgs = systemMsg
+      ? [{ role:'system', content:systemMsg }, { role:'user', content:prompt }]
+      : [{ role:'user', content:prompt }];
+    res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${apiKey}` },
+      body: JSON.stringify({ model:'gpt-4o', max_tokens:maxTokens, messages:msgs })
+    });
+    if (!res.ok) { const e=await res.json().catch(()=>{}); throw new Error(e?.error?.message||`API ${res.status}`); }
+    const data = await res.json();
+    return data.choices[0].message.content;
+  } else {
+    const fullPrompt = systemMsg ? `${systemMsg}\n\n${prompt}` : prompt;
+    res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      method:'POST', headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({ contents:[{ parts:[{ text:fullPrompt }] }] })
+    });
+    if (!res.ok) { const e=await res.json().catch(()=>{}); throw new Error(e?.error?.message||`API ${res.status}`); }
+    const data = await res.json();
+    return data.candidates[0].content.parts[0].text;
+  }
 }
 
 // ── PDF OVERLAY RENDERING ──
@@ -1639,96 +2529,78 @@ async function renderPdfOverlay(analysisData) {
     const viewport = page.getViewport({ scale: 1 });
     const scale = containerWidth / viewport.width;
     const scaledViewport = page.getViewport({ scale });
-
-    canvas.width = scaledViewport.width;
-    canvas.height = scaledViewport.height;
-    canvas.style.width = '100%';
-    canvas.style.height = 'auto';
-
+    canvas.width = scaledViewport.width; canvas.height = scaledViewport.height;
+    canvas.style.width = '100%'; canvas.style.height = 'auto';
     await page.render({ canvasContext: canvas.getContext('2d'), viewport: scaledViewport }).promise;
-
-    // Extract text items with coordinates
     const textContent = await page.getTextContent();
     const overlay = document.getElementById('overlayLayer');
     overlay.innerHTML = '';
-    overlay.style.width = scaledViewport.width + 'px';
-    overlay.style.height = scaledViewport.height + 'px';
-
-    const strong = (analysisData.strongPhrases || []).map(p => p.toLowerCase().trim());
-    const weak = (analysisData.weakPhrases || []).map(p => p.toLowerCase().trim());
-
-    // Build full text line groups by Y coordinate
-    const lines = {};
-    textContent.items.forEach(item => {
-      if (!item.str.trim()) return;
-      const [,,,, tx, ty] = item.transform;
-      const yKey = Math.round(ty);
-      if (!lines[yKey]) lines[yKey] = [];
-      lines[yKey].push(item);
-    });
-
-    // For each text item, check if it matches any phrase
+    overlay.style.width = scaledViewport.width + 'px'; overlay.style.height = scaledViewport.height + 'px';
+    const strong = (analysisData.strongPhrases||[]).map(p=>p.toLowerCase().trim());
+    const weak   = (analysisData.weakPhrases||[]).map(p=>p.toLowerCase().trim());
     textContent.items.forEach(item => {
       if (!item.str.trim() || item.str.trim().length < 3) return;
       const txt = item.str.toLowerCase().trim();
-      const [sx,,, sy, tx, ty] = item.transform;
-
-      let isStrong = strong.some(p => p.includes(txt) || txt.includes(p.slice(0,15)));
-      let isWeak = !isStrong && weak.some(p => p.includes(txt) || txt.includes(p.slice(0,12)));
-
+      const [sx,,,, tx, ty] = item.transform;
+      let isStrong = strong.some(p=>p.includes(txt)||txt.includes(p.slice(0,15)));
+      let isWeak   = !isStrong && weak.some(p=>p.includes(txt)||txt.includes(p.slice(0,12)));
       if (!isStrong && !isWeak) return;
-
-      // Convert PDF coords (bottom-left) → canvas coords (top-left)
       const pt1 = scaledViewport.convertToViewportPoint(tx, ty);
-      const pt2 = scaledViewport.convertToViewportPoint(tx + item.width, ty + (item.height || 10));
-
-      const left = Math.min(pt1[0], pt2[0]);
-      const top = Math.min(pt1[1], pt2[1]);
-      const width = Math.abs(pt2[0] - pt1[0]);
-      const height = Math.abs(pt2[1] - pt1[1]) + 2;
-
-      if (width < 2 || height < 2) return;
-
+      const pt2 = scaledViewport.convertToViewportPoint(tx + item.width, ty + (item.height||10));
+      const left=Math.min(pt1[0],pt2[0]), top=Math.min(pt1[1],pt2[1]);
+      const width=Math.abs(pt2[0]-pt1[0]), height=Math.abs(pt2[1]-pt1[1])+2;
+      if (width<2||height<2) return;
       const div = document.createElement('div');
-      div.className = `overlay-hl ${isStrong ? 'strong' : 'weak'}`;
+      div.className = `overlay-hl ${isStrong?'strong':'weak'}`;
       div.style.cssText = `left:${left}px;top:${top}px;width:${width}px;height:${height}px;`;
-
       const tip = document.createElement('div');
       tip.className = 'hl-tooltip';
-      tip.textContent = isStrong ? '✓ Strong signal' : '✗ Red flag — weakens your case';
+      tip.textContent = isStrong ? '✓ Strong signal' : '✗ Red flag';
       div.appendChild(tip);
-
       overlay.appendChild(div);
     });
-
-  } catch(err) {
-    console.warn('PDF overlay error:', err);
-  }
+  } catch(err) { console.warn('PDF overlay error:', err); }
 }
 
 // ── COMPANY TAB SWITCH ──
 async function switchCo(btn) {
   const co = btn.dataset.co;
-  document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 
+  if (co === '__compare') { showCompareView(); return; }
   if (cache[co]) { renderResults(co); return; }
 
-  // Skeleton
-  const body = document.getElementById('resultsBody');
-  body.innerHTML = `
+  document.getElementById('resultsBody').innerHTML = `
     <div class="two-col">
-      <div class="glass-card">${[1,2,3,4,5].map(()=>`<div class="skel"></div>`).join('')}</div>
-      <div class="glass-card">${[1,2,3,4,5].map(()=>`<div class="skel"></div>`).join('')}</div>
-    </div>
-    <div class="glass-card full" style="margin-bottom:1.25rem">${[1,2,3].map(()=>`<div class="skel"></div>`).join('')}</div>
-  `;
+      <div class="glass-card">${[1,2,3,4].map(()=>`<div class="skel"></div>`).join('')}</div>
+      <div class="glass-card">${[1,2,3,4].map(()=>`<div class="skel"></div>`).join('')}</div>
+    </div>`;
+  try { await doAnalysis(co); renderResults(co); }
+  catch(err) { showErr(err.message); }
+}
 
+// ── SHAREABLE CARD ──
+async function generateShareCard() {
+  const d = cache[currentCo];
+  if (!d) return;
+  const card = document.getElementById('shareCardTarget');
+  card.innerHTML = `
+    <div style="background:#09090f;padding:40px;width:600px;border-radius:20px;font-family:'Cabinet Grotesk',sans-serif;color:white">
+      <div style="font-size:13px;opacity:0.4;margin-bottom:12px;letter-spacing:0.12em;text-transform:uppercase">RoastMyResume</div>
+      <div style="font-size:72px;font-weight:900;line-height:0.9;margin-bottom:20px;background:linear-gradient(135deg,#b388ff,#e040fb,#ff40b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent">${d.percentile}th</div>
+      <div style="font-size:18px;opacity:0.6;margin-bottom:8px">percentile for ${currentCo}</div>
+      <div style="font-size:24px;font-weight:800;color:${d.verdict==='Shortlisted'?'#4ade80':d.verdict==='Rejected'?'#f87171':'#fbbf24'}">${d.verdict}</div>
+      <div style="margin-top:24px;font-size:12px;opacity:0.3">roastmyresume.ai</div>
+    </div>`;
+
+  // Simple text copy fallback (html-to-image not available in this env)
+  const text = `My resume scored ${d.percentile}th percentile for ${currentCo} — Verdict: ${d.verdict}\n\nAnalyzed by RoastMyResume 🔥`;
   try {
-    await doAnalysis(co);
-    renderResults(co);
-  } catch(err) {
-    showErr(err.message);
+    await navigator.clipboard.writeText(text);
+    alert('Share text copied to clipboard!\n\n' + text);
+  } catch(e) {
+    prompt('Copy this to share:', text);
   }
 }
 
@@ -1741,7 +2613,7 @@ function animateNum(id, from, to, dur) {
     const t = Math.min((now-s)/dur, 1);
     const e = 1 - Math.pow(1-t, 3);
     el.textContent = Math.round(from + (to-from)*e);
-    if (t < 1) requestAnimationFrame(tick);
+    if (t<1) requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
 }
@@ -1753,23 +2625,14 @@ function showErr(msg) {
 }
 
 function reset() {
-  resumeText=''; pdfDoc=null; cache={}; currentCo='Meta';
+  resumeText=''; pdfDoc=null; cache={}; currentCo='Meta'; chatHistory=[];
+  window._slotShown = false;
   document.getElementById('fileInput').value='';
   document.getElementById('errBox').style.display='none';
-  document.querySelectorAll('.ctab').forEach((b,i) => b.classList.toggle('active',i===0));
+  document.querySelectorAll('.ctab').forEach((b,i)=>b.classList.toggle('active',i===0));
   show('landing');
 }
 
-// Drag & drop
-const dz = document.getElementById('dropzone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor='var(--ink)'; });
-dz.addEventListener('dragleave', () => { dz.style.borderColor=''; });
-dz.addEventListener('drop', e => {
-  e.preventDefault();
-  dz.style.borderColor='';
-  const f = e.dataTransfer.files[0];
-  if (f) { document.getElementById('fileInput').files = e.dataTransfer.files; handleFile({target:{files:[f]}}); }
-});
 </script>
 </body>
 </html>

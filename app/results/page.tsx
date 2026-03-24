@@ -1,14 +1,17 @@
 "use client";
 
 import { toPng } from "html-to-image";
+
+export const dynamic = "force-dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { Download } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CompanyTabs } from "@/components/CompanyTabs";
+import { CompanyComparisonView } from "@/components/CompanyComparisonView";
+import { CompanyTabs, type TabValue } from "@/components/CompanyTabs";
 import { ExecutiveSummaryCard } from "@/components/ExecutiveSummaryCard";
 import { KeywordsCard } from "@/components/KeywordsCard";
-import { ImprovementList } from "@/components/ImprovementList";
+import { ImprovementPlaybookCard } from "@/components/ImprovementPlaybookCard";
 import { InterviewQuestionsCard } from "@/components/InterviewQuestionsCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { OneLinerPitchCard } from "@/components/OneLinerPitchCard";
@@ -20,8 +23,11 @@ import { RewrittenBulletsCard } from "@/components/RewrittenBulletsCard";
 import { ResultsSkeleton } from "@/components/ResultsSkeleton";
 import { SuggestedHeadlineCard } from "@/components/SuggestedHeadlineCard";
 import { TopActionsCard } from "@/components/TopActionsCard";
+import { SlotMachineReveal } from "@/components/SlotMachineReveal";
 import { VerdictBanner } from "@/components/VerdictBanner";
+import { ATSParsePreview } from "@/components/ATSParsePreview";
 import { AskRecruiterChat } from "@/components/AskRecruiterChat";
+import { DownloadModal } from "@/components/DownloadModal";
 import { JdReAnalysis } from "@/components/JdReAnalysis";
 import { analyzeResume } from "@/lib/ai";
 import { companies, type AnalysisResult, type ApiProvider, type Company } from "@/lib/types";
@@ -51,10 +57,14 @@ export default function ResultsPage() {
   const [provider, setProvider] = useState<ApiProvider>("anthropic");
   const [apiKey, setApiKey] = useState("");
   const [resumeText, setResumeText] = useState("");
-  const [company, setCompany] = useState<Company>(companies[0]);
+  const [tab, setTab] = useState<TabValue>(companies[0]);
   const [loading, setLoading] = useState(false);
+  const [analyzeTarget, setAnalyzeTarget] = useState<Company | null>(null);
   const [error, setError] = useState("");
   const [cache, setCache] = useState<Partial<Record<Company, AnalysisResult>>>({});
+
+  const company = tab === "__compare" ? (companies.find((c) => cache[c]) ?? companies[0]) : tab;
+  const displayResult = cache[company];
 
   useEffect(() => {
     setApiKey(sessionStorage.getItem(SESSION_API_KEY) ?? "");
@@ -71,39 +81,40 @@ export default function ResultsPage() {
     }
   }, []);
 
-  const result = cache[company];
+  const result = displayResult;
   const cacheCount = Object.keys(cache).length;
+  const companyToAnalyze = tab !== "__compare" && !cache[tab] ? tab : analyzeTarget;
   const isFirstLoad = loading && !result && cacheCount === 0;
-  const isTabLoading = loading && !result && cacheCount > 0;
+  const isTabLoading = loading && companyToAnalyze != null;
   const needsSession = !resumeText || !apiKey;
   const hasResult = result && "overall" in result;
 
   useEffect(() => {
-    async function run() {
-      if (!apiKey || !resumeText || cache[company]) return;
-      setLoading(true);
-      setError("");
-      try {
-        const next = await analyzeResume(provider, apiKey, company, resumeText);
+    if (!apiKey || !resumeText || !companyToAnalyze || cache[companyToAnalyze]) return;
+    setLoading(true);
+    setError("");
+    analyzeResume(provider, apiKey, companyToAnalyze, resumeText)
+      .then((next) => {
         setCache((prev) => {
-          const updated = { ...prev, [company]: next };
+          const updated = { ...prev, [companyToAnalyze]: next };
           sessionStorage.setItem(SESSION_CACHE, JSON.stringify(updated));
           return updated;
         });
-      } catch (err) {
+        setAnalyzeTarget(null);
+      })
+      .catch((err) => {
         setError(err instanceof Error ? err.message : "The algorithm choked. Try again.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    void run();
-  }, [provider, apiKey, resumeText, company, cache]);
+      })
+      .finally(() => setLoading(false));
+  }, [provider, apiKey, resumeText, companyToAnalyze, cache]);
 
   const verdictCardRef = useRef<HTMLDivElement>(null);
+  const [slotRevealed, setSlotRevealed] = useState(false);
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
 
   async function shareCard() {
     const target = verdictCardRef.current;
-    if (!target) return;
+    if (!target || !result) return;
     const dataUrl = await toPng(target, {
       width: 1200,
       height: 630,
@@ -111,15 +122,17 @@ export default function ResultsPage() {
       backgroundColor: "#e8f3fd"
     });
     const a = document.createElement("a");
-    a.download = `roast-${company.toLowerCase()}-${result!.overall.topPercentile}pct.png`;
+    a.download = `roast-${company.toLowerCase()}-${result.overall.topPercentile}pct.png`;
     a.href = dataUrl;
     a.click();
   }
 
-  function clearCompanyCache() {
+  function clearCompanyCache(co?: Company) {
+    const target = co ?? (tab !== "__compare" ? tab : companyToAnalyze);
+    if (!target) return;
     setCache((prev) => {
       const next = { ...prev };
-      delete next[company];
+      delete next[target];
       sessionStorage.setItem(SESSION_CACHE, JSON.stringify(next));
       return next;
     });
@@ -144,12 +157,34 @@ export default function ResultsPage() {
         <div className="font-display text-sm font-bold tracking-wide text-ink/70">
           RoastMyResume
         </div>
-        <Link
-          href="/"
-          className="rounded-full border-[1.5px] border-ink/20 bg-white/50 px-[18px] py-[7px] text-xs font-medium text-ink backdrop-blur-md transition hover:border-ink/35 hover:bg-white/80"
-        >
-          ↩ New Resume
-        </Link>
+        <div className="flex items-center gap-2">
+          {hasResult && result && !isTabLoading && (
+            <>
+              <button
+                type="button"
+                onClick={() => setDownloadModalOpen(true)}
+                className="flex items-center gap-2 rounded-full border-[1.5px] border-ink/20 bg-white/50 px-[18px] py-[7px] text-xs font-medium text-ink backdrop-blur-md transition hover:border-ink/35 hover:bg-white/80"
+              >
+                <Download className="h-4 w-4" />
+                Download Updated
+              </button>
+              <button
+                type="button"
+                onClick={() => void shareCard()}
+                className="flex items-center gap-2 rounded-full border-[1.5px] border-ink/20 bg-white/50 px-[18px] py-[7px] text-xs font-medium text-ink backdrop-blur-md transition hover:border-ink/35 hover:bg-white/80"
+              >
+                <Download className="h-4 w-4" />
+                Share
+              </button>
+            </>
+          )}
+          <Link
+            href="/"
+            className="rounded-full border-[1.5px] border-ink/20 bg-white/50 px-[18px] py-[7px] text-xs font-medium text-ink backdrop-blur-md transition hover:border-ink/35 hover:bg-white/80"
+          >
+            ↩ New Resume
+          </Link>
+        </div>
       </nav>
 
       {error && !isFirstLoad ? (
@@ -171,12 +206,22 @@ export default function ResultsPage() {
       ) : null}
 
       {hasResult && result ? (
-        <VerdictBanner
-          verdict={result.overall.verdict}
-          topPercentile={result.overall.topPercentile}
-          cultureFitScore={result.companyFit.cultureFitScore}
-          techFitScore={result.companyFit.techFitScore}
-        />
+        slotRevealed ? (
+          <VerdictBanner
+            verdict={result.overall.verdict}
+            topPercentile={result.overall.topPercentile}
+            cultureFitScore={result.companyFit.cultureFitScore}
+            techFitScore={result.companyFit.techFitScore}
+          />
+        ) : (
+          <SlotMachineReveal
+            verdict={result.overall.verdict}
+            topPercentile={result.overall.topPercentile}
+            cultureFitScore={result.companyFit.cultureFitScore}
+            techFitScore={result.companyFit.techFitScore}
+            onRevealComplete={() => setSlotRevealed(true)}
+          />
+        )
       ) : null}
 
       {isTabLoading ? (
@@ -192,7 +237,11 @@ export default function ResultsPage() {
       ) : null}
 
       {!needsSession ? (
-        <CompanyTabs value={company} onChange={setCompany} loadingCompany={isTabLoading ? company : null} />
+        <CompanyTabs
+          value={tab}
+          onChange={setTab}
+          loadingCompany={isTabLoading && companyToAnalyze ? companyToAnalyze : null}
+        />
       ) : null}
 
       <div ref={captureRef}>
@@ -209,10 +258,18 @@ export default function ResultsPage() {
               </Link>
             </div>
           </section>
+        ) : tab === "__compare" ? (
+          <div className="mx-auto max-w-[1120px] px-8 py-10 md:px-12">
+            <CompanyComparisonView
+              cache={cache}
+              onAnalyzeCompany={(co) => setAnalyzeTarget(co)}
+              loadingCompany={isTabLoading ? companyToAnalyze ?? undefined : undefined}
+            />
+          </div>
         ) : hasResult && result ? (
           <AnimatePresence mode="wait">
             <motion.div
-              key={company}
+              key={tab}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -220,7 +277,7 @@ export default function ResultsPage() {
             >
               <RoastV2Results
                 result={result}
-                company={company}
+                company={tab}
                 resumeText={resumeText}
                 provider={provider}
                 apiKey={apiKey}
@@ -242,6 +299,18 @@ export default function ResultsPage() {
           </button>
         </div>
       ) : null}
+
+      {result && (
+        <DownloadModal
+          isOpen={downloadModalOpen}
+          onClose={() => setDownloadModalOpen(false)}
+          resumeText={resumeText}
+          analysis={result}
+          targetCompany={company}
+          apiKey={apiKey || undefined}
+          provider={provider}
+        />
+      )}
 
       {/* Hidden shareable card for PNG capture (1200x630) */}
       {hasResult && result && (
@@ -298,7 +367,7 @@ function RoastV2Results({
           <div className="mb-4 text-xs text-ink/55">
             A recruiter spends ~7 seconds on your resume. Watch what they notice, second by second.
           </div>
-          <RecruiterSimulation />
+          <RecruiterSimulation verdict={result.overall.verdict} />
         </div>
       </div>
 
@@ -514,6 +583,11 @@ function RoastV2Results({
         </div>
       </div>
 
+      {/* ATS Parse Preview */}
+      <div className="mb-5" style={{ animationDelay: "0.28s" }}>
+        <ATSParsePreview resumeText={resumeText} result={result} />
+      </div>
+
       {/* PDF Highlights — roast-v2 */}
       <div className="glass-card mb-5 col-span-full" style={{ animationDelay: "0.3s" }}>
         <div className="card-eyebrow">Resume Highlights — What sticks in the blink</div>
@@ -539,9 +613,10 @@ function RoastV2Results({
           <InterviewQuestionsCard questions={d.interviewQuestions} company={company} />
         ) : null}
         <div className={d.interviewQuestions?.length ? "" : "md:col-span-2"}>
-          <div className="glass-card">
-            <ImprovementList improvements={d.improvements} />
-          </div>
+          <ImprovementPlaybookCard
+            improvements={d.improvements}
+            initialScore={d.overall.overallScore}
+          />
         </div>
       </div>
 
