@@ -16,7 +16,10 @@ export function TopActionsCard({ actions }: Props) {
       <ul className="space-y-3">
         {actions.slice(0, 3).map((action, i) => (
           <li key={i} className="flex gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ink font-display text-xs font-bold text-white">
+            <span
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg font-display text-xs font-bold text-white"
+              style={{ background: "linear-gradient(135deg, #e040fb 0%, #b044ff 100%)" }}
+            >
               {i + 1}
             </span>
             <p className="text-[13px] leading-relaxed text-ink/90">{action}</p>

@@ -13,11 +13,16 @@ import { InterviewQuestionsCard } from "@/components/InterviewQuestionsCard";
 import { LoadingScreen } from "@/components/LoadingScreen";
 import { OneLinerPitchCard } from "@/components/OneLinerPitchCard";
 import { PdfOverlay } from "@/components/PdfOverlay";
+import { RadarChart } from "@/components/RadarChart";
+import { RecruiterSimulation } from "@/components/RecruiterSimulation";
+import { ShareableVerdictCard } from "@/components/ShareableVerdictCard";
 import { RewrittenBulletsCard } from "@/components/RewrittenBulletsCard";
 import { ResultsSkeleton } from "@/components/ResultsSkeleton";
 import { SuggestedHeadlineCard } from "@/components/SuggestedHeadlineCard";
 import { TopActionsCard } from "@/components/TopActionsCard";
 import { VerdictBanner } from "@/components/VerdictBanner";
+import { AskRecruiterChat } from "@/components/AskRecruiterChat";
+import { JdReAnalysis } from "@/components/JdReAnalysis";
 import { analyzeResume } from "@/lib/ai";
 import { companies, type AnalysisResult, type ApiProvider, type Company } from "@/lib/types";
 
@@ -94,11 +99,19 @@ export default function ResultsPage() {
     void run();
   }, [provider, apiKey, resumeText, company, cache]);
 
+  const verdictCardRef = useRef<HTMLDivElement>(null);
+
   async function shareCard() {
-    if (!captureRef.current) return;
-    const dataUrl = await toPng(captureRef.current, { backgroundColor: "#d4e8fa" });
+    const target = verdictCardRef.current;
+    if (!target) return;
+    const dataUrl = await toPng(target, {
+      width: 1200,
+      height: 630,
+      pixelRatio: 2,
+      backgroundColor: "#e8f3fd"
+    });
     const a = document.createElement("a");
-    a.download = `roast-${company.toLowerCase()}.png`;
+    a.download = `roast-${company.toLowerCase()}-${result!.overall.topPercentile}pct.png`;
     a.href = dataUrl;
     a.click();
   }
@@ -116,6 +129,13 @@ export default function ResultsPage() {
 
   return (
     <div className="min-h-screen pb-16">
+      {/* Pink/lavender glow overlay */}
+      <div
+        className="pointer-events-none fixed inset-0 -z-10 opacity-30"
+        style={{
+          background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(224,64,251,0.12) 0%, rgba(176,68,255,0.06) 50%, transparent 70%)"
+        }}
+      />
       {/* Results nav — roast-v2 */}
       <nav
         className="sticky top-0 z-50 flex items-center justify-between border-b border-white/50 px-8 py-4 backdrop-blur-xl md:px-12"
@@ -198,7 +218,13 @@ export default function ResultsPage() {
               exit={{ opacity: 0 }}
               className="mx-auto max-w-[1120px] px-8 py-10 md:px-12"
             >
-              <RoastV2Results result={result} company={company} />
+              <RoastV2Results
+                result={result}
+                company={company}
+                resumeText={resumeText}
+                provider={provider}
+                apiKey={apiKey}
+              />
             </motion.div>
           </AnimatePresence>
         ) : null}
@@ -212,15 +238,38 @@ export default function ResultsPage() {
             onClick={() => void shareCard()}
           >
             <Download className="mr-1.5 inline h-4 w-4" />
-            Share Image
+            Share Verdict Card
           </button>
         </div>
       ) : null}
+
+      {/* Hidden shareable card for PNG capture (1200x630) */}
+      {hasResult && result && (
+        <div
+          ref={verdictCardRef}
+          className="fixed left-[-9999px] top-0"
+          aria-hidden
+        >
+          <ShareableVerdictCard result={result} company={company} />
+        </div>
+      )}
     </div>
   );
 }
 
-function RoastV2Results({ result, company }: { result: AnalysisResult; company: Company }) {
+function RoastV2Results({
+  result,
+  company,
+  resumeText,
+  provider,
+  apiKey
+}: {
+  result: AnalysisResult;
+  company: Company;
+  resumeText: string;
+  provider: ApiProvider;
+  apiKey: string;
+}) {
   const d = result;
   const activeIdx = Math.min(23, Math.round((d.overall.topPercentile / 100) * 23));
   const bars = useMemo(
@@ -242,6 +291,33 @@ function RoastV2Results({ result, company }: { result: AnalysisResult; company: 
 
   return (
     <>
+      {/* Recruiter 7s simulation — must be near top for PDF to render */}
+      <div className="mb-5">
+        <div className="glass-card flex flex-col py-6" style={{ animationDelay: "0.26s" }}>
+          <div className="card-eyebrow">Recruiter time simulation</div>
+          <div className="mb-4 text-xs text-ink/55">
+            A recruiter spends ~7 seconds on your resume. Watch what they notice, second by second.
+          </div>
+          <RecruiterSimulation />
+        </div>
+      </div>
+
+      {/* Radar chart — morphs per company */}
+      <div className="mb-5">
+        <motion.div
+          key={company}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card flex flex-col items-center py-6"
+        >
+          <div className="card-eyebrow mb-2">Your profile at {company}</div>
+          <p className="mb-4 text-center text-[12px] text-ink/55">
+            Switch company tabs to see how your scores morph
+          </p>
+          <RadarChart result={d} />
+        </motion.div>
+      </div>
+
       {/* Row 1: Score + Notes + Keywords */}
       <div className="mb-5 grid grid-cols-1 gap-5 md:grid-cols-3">
         <div className="glass-card" style={{ animationDelay: "0.05s" }}>
@@ -258,7 +334,7 @@ function RoastV2Results({ result, company }: { result: AnalysisResult; company: 
               <div
                 key={i}
                 className={`min-h-[3px] flex-1 rounded-t-sm transition-colors ${
-                  b.active ? "bg-ink" : "bg-[rgba(26,26,46,0.1)]"
+                  b.active ? "bg-[#b044ff]" : "bg-[rgba(26,26,46,0.1)]"
                 }`}
                 style={{ height: `${b.height}%` }}
               />
@@ -442,7 +518,6 @@ function RoastV2Results({ result, company }: { result: AnalysisResult; company: 
       <div className="glass-card mb-5 col-span-full" style={{ animationDelay: "0.3s" }}>
         <div className="card-eyebrow">Resume Highlights — What sticks in the blink</div>
         <div className="mb-4 text-xs text-[rgba(26,26,46,0.5)]">
-          A recruiter scans a résumé for 5–7 seconds before making a call.{" "}
           <span className="rounded bg-[rgba(0,200,83,0.2)] px-1.5 py-0.5 text-[#00703a]">Green</span> = strong,{" "}
           <span className="rounded bg-[rgba(255,23,68,0.15)] px-1.5 py-0.5 text-[#c0001a]">Red</span> = hurts you.
         </div>
@@ -468,6 +543,23 @@ function RoastV2Results({ result, company }: { result: AnalysisResult; company: 
             <ImprovementList improvements={d.improvements} />
           </div>
         </div>
+      </div>
+
+      {/* Ask the recruiter + JD re-analysis — retention features */}
+      <div className="mb-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+        <AskRecruiterChat
+          result={result}
+          company={company}
+          resumeText={resumeText}
+          provider={provider}
+          apiKey={apiKey}
+        />
+        <JdReAnalysis
+          company={company}
+          resumeText={resumeText}
+          provider={provider}
+          apiKey={apiKey}
+        />
       </div>
     </>
   );

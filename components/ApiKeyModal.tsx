@@ -54,9 +54,10 @@ export function ApiKeyModal({ open, initialKey, initialProvider, onClose, onSave
               onClick={() => setProvider(p.id)}
               className={`flex-1 rounded-[10px] border-[1.5px] px-2 py-2 text-center text-[11px] font-semibold transition ${
                 provider === p.id
-                  ? "border-ink bg-ink text-white"
-                  : "border-ink/15 bg-white text-[rgba(26,26,46,0.5)] hover:text-ink"
+                  ? "border-[#e040fb] text-white"
+                  : "border-ink/15 bg-white text-[rgba(26,26,46,0.5)] hover:text-[#b044ff]"
               }`}
+              style={provider === p.id ? { background: "linear-gradient(135deg, #e040fb 0%, #b044ff 100%)" } : undefined}
             >
               {p.label}
             </button>
@@ -88,7 +89,8 @@ export function ApiKeyModal({ open, initialKey, initialProvider, onClose, onSave
         <div className="mt-5 flex gap-2">
           <button
             type="button"
-            className="flex-1 rounded-[10px] bg-ink py-3 font-display text-[13px] font-bold text-white transition hover:bg-ink2"
+            className="flex-1 rounded-[10px] py-3 font-display text-[13px] font-bold text-white transition hover:opacity-90"
+            style={{ background: "linear-gradient(135deg, #e040fb 0%, #b044ff 100%)" }}
             disabled={!value.trim()}
             onClick={() => onSave(provider, value.trim())}
           >

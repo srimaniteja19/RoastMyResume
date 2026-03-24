@@ -58,7 +58,8 @@ export function LoadingScreen() {
       </motion.p>
       <div className="mt-10 h-[3px] w-[280px] max-w-[90vw] overflow-hidden rounded-sm bg-[rgba(26,26,46,0.1)]">
         <motion.div
-          className="h-full rounded-sm bg-ink"
+          className="h-full rounded-sm"
+          style={{ background: "linear-gradient(90deg, #b388ff 0%, #e040fb 100%)" }}
           animate={{ width: `${progress}%` }}
           transition={{ duration: 0.5 }}
         />

@@ -227,3 +227,12 @@ main {
   height: 12px;
   margin-bottom: 8px;
 }
+
+/* Landing floating elements */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-15px) translateX(5px); }
+}
+.animate-float-slow {
+  animation: float-slow 5s ease-in-out infinite;
+}

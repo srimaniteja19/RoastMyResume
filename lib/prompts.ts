@@ -91,3 +91,45 @@ Return a single JSON object — no markdown, no explanation. Every claim must be
 
 Return ONLY valid JSON. No markdown.`;
 }
+
+export const RECRUITER_CHAT_SYSTEM = `You are a senior FAANG technical recruiter who just reviewed a candidate's resume. You have the full analysis and the resume text. Answer the candidate's questions directly, honestly, and constructively. Stay in character. Cite specific resume content when relevant. Be helpful but not sugar-coating — give real advice. Keep responses concise (2–4 sentences unless they ask for more).`;
+
+export function buildRecruiterChatContext(company: string, resumeText: string, analysis: unknown): string {
+  return `Company: ${company}
+
+Resume (excerpt):
+---
+${resumeText.slice(0, 4000)}
+---
+
+Analysis summary:
+${JSON.stringify(analysis, null, 2).slice(0, 3000)}
+---`;
+}
+
+export const JD_ANALYSIS_SYSTEM = `You are a resume analyst. Compare the candidate's resume against a specific Job Description (JD). Identify keyword gaps, alignment, and tailored recommendations. Be specific — cite exact JD requirements. Never fabricate resume content.`;
+
+export function buildJdAnalysisPrompt(company: string, resumeText: string, jdText: string): string {
+  return `Company/role context: ${company}
+
+Job Description:
+---
+${jdText.slice(0, 6000)}
+---
+
+Candidate's Resume:
+---
+${resumeText.slice(0, 4000)}
+---
+
+Return a JSON object with:
+{
+  "jdAlignmentScore": <0-100, how well resume matches JD>,
+  "keywordGaps": ["<JD keyword 1 missing from resume>", "<JD keyword 2>", ...],
+  "keywordsMatched": ["<keyword from JD that appears in resume>", ...],
+  "tailoredSummary": "<2-3 sentences: biggest gap for this specific role, and #1 fix>",
+  "suggestedAdditions": ["<specific phrase or skill to add>", "<another>", ...]
+}
+
+Return ONLY valid JSON. No markdown.`;
+}

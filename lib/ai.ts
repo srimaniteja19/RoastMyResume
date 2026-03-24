@@ -3,7 +3,14 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
-import { buildUserPrompt, SYSTEM_PROMPT } from "@/lib/prompts";
+import {
+  buildUserPrompt,
+  buildJdAnalysisPrompt,
+  buildRecruiterChatContext,
+  JD_ANALYSIS_SYSTEM,
+  RECRUITER_CHAT_SYSTEM,
+  SYSTEM_PROMPT
+} from "@/lib/prompts";
 import type { AnalysisResult, ApiProvider, Company } from "@/lib/types";
 
 const improvementItemSchema = z.object({
@@ -94,7 +101,7 @@ function getModel(provider: ApiProvider, apiKey: string) {
     case "openai":
       return createOpenAI({ apiKey })("gpt-4o");
     case "gemini":
-      return createGoogleGenerativeAI({ apiKey })("gemini-2.5-flash-lite");
+      return createGoogleGenerativeAI({ apiKey })("gemini-2.5-flash");
     default:
       throw new Error(`Unknown provider: ${provider}`);
   }
@@ -191,5 +198,70 @@ export async function analyzeResume(
     suggestedHeadline: p.suggestedHeadline ?? "",
     interviewQuestions: p.interviewQuestions ?? [],
     topActions: p.topActions ?? []
+  };
+}
+
+const jdAnalysisSchema = z.object({
+  jdAlignmentScore: z.number().min(0).max(100),
+  keywordGaps: z.array(z.string()),
+  keywordsMatched: z.array(z.string()),
+  tailoredSummary: z.string(),
+  suggestedAdditions: z.array(z.string())
+});
+
+export type JdAnalysisResult = z.infer<typeof jdAnalysisSchema>;
+
+export async function chatWithRecruiter(
+  provider: ApiProvider,
+  apiKey: string,
+  company: Company,
+  resumeText: string,
+  analysis: AnalysisResult,
+  messages: { role: "user" | "assistant"; content: string }[]
+): Promise<string> {
+  const model = getModel(provider, apiKey);
+  const context = buildRecruiterChatContext(company, resumeText, analysis);
+
+  const chatMessages = messages.map((m) => ({
+    role: m.role as "user" | "assistant",
+    content: m.content
+  }));
+
+  const { text } = await generateText({
+    model,
+    system: `${RECRUITER_CHAT_SYSTEM}\n\nContext:\n${context}`,
+    messages: chatMessages,
+    maxOutputTokens: 800
+  });
+
+  return text ?? "";
+}
+
+export async function analyzeResumeAgainstJD(
+  provider: ApiProvider,
+  apiKey: string,
+  company: Company,
+  resumeText: string,
+  jdText: string
+): Promise<JdAnalysisResult> {
+  const model = getModel(provider, apiKey);
+
+  const { output } = await generateText({
+    model,
+    system: JD_ANALYSIS_SYSTEM,
+    prompt: buildJdAnalysisPrompt(company, resumeText, jdText),
+    maxOutputTokens: 2000,
+    output: Output.object({ schema: jdAnalysisSchema })
+  });
+
+  if (!output) throw new Error("No response from model. Try again.");
+  const p = output as z.infer<typeof jdAnalysisSchema>;
+
+  return {
+    jdAlignmentScore: clamp(p.jdAlignmentScore),
+    keywordGaps: p.keywordGaps ?? [],
+    keywordsMatched: p.keywordsMatched ?? [],
+    tailoredSummary: p.tailoredSummary ?? "",
+    suggestedAdditions: p.suggestedAdditions ?? []
   };
 }

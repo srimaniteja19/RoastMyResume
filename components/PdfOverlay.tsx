@@ -95,7 +95,7 @@ export function PdfOverlay({ strongPhrases, weakPhrases }: Props) {
               ? "bg-[rgba(0,200,83,0.2)] border-b-2 border-[rgba(0,200,83,0.6)] hover:bg-[rgba(0,200,83,0.28)]"
               : "bg-[rgba(255,23,68,0.15)] border-b-2 border-[rgba(255,23,68,0.5)] hover:bg-[rgba(255,23,68,0.22)]"
           }`;
-          div.style.cssText = `left:${left}px;top:${top}px;width:${width}px;height:${height}px;`;
+          div.style.cssText = `left:${left}px;top:${top}px;width:${width}px;height:${height}px;${isStrong ? "box-shadow:0 0 10px rgba(224,64,251,0.25);" : ""}`;
 
           const tip = document.createElement("div");
           tip.className =

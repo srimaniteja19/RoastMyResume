@@ -1,16 +1,33 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ApiKeyModal } from "@/components/ApiKeyModal";
 import { extractPdfText } from "@/lib/pdfExtract";
 import type { ApiProvider } from "@/lib/types";
 
+const FLOATING_SKILLS = [
+  { label: "React", style: { top: "18%", left: "8%", animationDelay: "0s" } },
+  { label: "Python", style: { top: "25%", right: "6%", animationDelay: "1s" } },
+  { label: "AWS", style: { top: "45%", left: "4%", animationDelay: "2s" } },
+  { label: "TypeScript", style: { top: "55%", right: "10%", animationDelay: "0.5s" } },
+  { label: "Node.js", style: { bottom: "28%", left: "12%", animationDelay: "1.5s" } },
+  { label: "SQL", style: { bottom: "22%", right: "8%", animationDelay: "2.5s" } },
+  { label: "ML", style: { top: "12%", left: "22%", animationDelay: "3s" } },
+  { label: "Go", style: { top: "38%", right: "3%", animationDelay: "1s" } },
+  { label: "K8s", style: { bottom: "35%", right: "18%", animationDelay: "0.8s" } },
+  { label: "System Design", style: { top: "8%", right: "15%", animationDelay: "2s" } },
+];
+
+const CHECK_ITEMS = ["ATS scan", "Impact bullets", "FAANG fit"];
+
 const SESSION_API_KEY = "rmr_api_key";
 const SESSION_PROVIDER = "rmr_provider";
 const SESSION_RESUME_TEXT = "rmr_resume_text";
 const SESSION_PDF_BASE64 = "rmr_pdf_base64";
+const SESSION_CACHE = "rmr_results_cache_v3";
 
 async function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -67,6 +84,7 @@ export default function LandingPage() {
 
       setPreview(text.slice(0, 5000));
       sessionStorage.setItem(SESSION_RESUME_TEXT, text);
+      sessionStorage.removeItem(SESSION_CACHE);
     } catch (e) {
       alert(e instanceof Error ? e.message : "Upload failed.");
     } finally {
@@ -103,8 +121,17 @@ export default function LandingPage() {
     if (f) void processFile(f);
   }
 
+  const [dropzoneHover, setDropzoneHover] = useState(false);
+
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#fafafa]">
+      {/* Glow blob — pink/lavender radial */}
+      <div
+        className="pointer-events-none fixed inset-0 -z-10 opacity-40"
+        style={{
+          background: "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(224,64,251,0.15) 0%, rgba(176,68,255,0.08) 40%, transparent 70%)"
+        }}
+      />
       <ApiKeyModal
         open={modalOpen}
         initialKey={apiKey}
@@ -113,141 +140,195 @@ export default function LandingPage() {
         onSave={saveKey}
       />
 
-      {/* Soft radial gradient — lighter in center */}
-      <div
-        className="fixed inset-0 -z-[2]"
-        style={{
-          background:
-            "radial-gradient(ellipse 100% 70% at 50% 20%, #e8f3fd 0%, #d4e8fa 35%, #b8d4f5 70%, #a8c8f0 100%)"
-        }}
-      />
-
-      {/* Subtle clouds */}
-      <div className="pointer-events-none fixed inset-0 -z-[1] overflow-hidden opacity-70">
-        <div className="absolute left-[-5%] top-[12%] h-16 w-48 animate-drift1 rounded-full bg-white/90 shadow-lg" />
-        <div className="absolute right-[8%] top-[20%] h-14 w-40 animate-drift2 rounded-full bg-white/80 shadow-md" />
+      {/* Floating skills — resume-relevant tech tags */}
+      <div className="pointer-events-none fixed inset-0 z-0 max-md:opacity-50">
+        {FLOATING_SKILLS.map(({ label, style }, i) => (
+          <motion.span
+            key={label}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 0.35, scale: 1 }}
+            transition={{ delay: 0.5 + i * 0.08, duration: 0.5 }}
+            style={{
+              ...style,
+              position: "absolute",
+              fontSize: "clamp(10px, 1.5vw, 12px)",
+              fontFamily: "var(--font-display)",
+              fontWeight: 600,
+              color: "rgba(107,33,168,0.8)",
+              background: "rgba(224,64,251,0.12)",
+              padding: "4px 10px",
+              borderRadius: "9999px",
+              boxShadow: "0 2px 12px rgba(224,64,251,0.15)",
+            }}
+            className={["animate-float1", "animate-float2", "animate-float3"][i % 3]}
+          >
+            {label}
+          </motion.span>
+        ))}
       </div>
 
-      <nav className="relative z-10 flex items-center justify-between px-6 py-5 md:px-12">
-        <div className="font-display text-[15px] font-bold tracking-wide text-ink/80">
-          RoastMyResume
+      {/* Floating mini resume card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="pointer-events-none fixed left-1/2 top-[22%] z-[1] hidden -translate-x-[180px] md:block"
+        style={{ width: 80 }}
+      >
+        <div className="animate-resume-float rounded-lg border border-ink/10 bg-white/95 p-3 shadow-lg">
+          <div className="mb-2 h-1.5 w-2/3 rounded bg-ink/20" />
+          <div className="mb-1.5 h-1 w-full rounded bg-ink/10" />
+          <div className="mb-1.5 h-1 w-4/5 rounded bg-ink/10" />
+          <div className="h-1 w-2/3 rounded bg-ink/10" />
         </div>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9 }}
+        className="pointer-events-none fixed right-1/2 top-[26%] z-[1] hidden translate-x-[140px] md:block"
+        style={{ width: 72 }}
+      >
+        <div className="animate-resume-float rounded-lg border border-ink/10 bg-white/95 p-2.5 shadow-lg" style={{ animationDelay: "1s" }}>
+          <div className="mb-1.5 h-1 w-3/4 rounded bg-ink/15" />
+          <div className="mb-1 h-1 w-full rounded bg-ink/10" />
+          <div className="h-1 w-1/2 rounded bg-ink/10" />
+        </div>
+      </motion.div>
+
+      <nav className="relative z-10 flex items-center justify-between px-6 py-5 md:px-12">
+        <span className="font-handwritten text-2xl font-semibold text-ink">
+          RoastMyResume
+        </span>
         <button
           type="button"
-          className="rounded-full border border-ink/15 bg-white/70 px-5 py-2.5 text-xs font-semibold text-ink/80 shadow-sm backdrop-blur-md transition hover:border-ink/25 hover:bg-white hover:shadow-md"
+          className="rounded-full bg-ink/5 px-4 py-2 text-sm font-medium text-ink/80 transition hover:bg-ink/10"
           onClick={() => setModalOpen(true)}
         >
           🔑 API Key
         </button>
       </nav>
 
-      <div className="relative z-[5] mx-auto flex max-w-[900px] flex-1 flex-col items-center px-6 py-8 text-center md:py-12">
-        {/* Floating document + letter tiles — layered */}
-        <div className="relative mb-4">
-          <div
-            className="absolute left-1/2 top-0 h-[380px] w-[300px] -translate-x-1/2 -translate-y-4 rounded-2xl bg-white/95 p-6 shadow-[0_25px_60px_rgba(0,0,0,0.12)]"
-            aria-hidden
-            style={{ transform: "translate(-50%, -1rem) rotate(-1.5deg)" }}
-          >
-            <div className="mx-auto mb-5 h-4 w-2/5 rounded bg-ink/15" />
-            <div className="mb-2 h-2 w-4/5 rounded bg-ink/10" />
-            <div className="mb-2 h-2 w-full rounded bg-ink/10" />
-            <div className="mb-2 h-2 w-3/4 rounded bg-ink/10" />
-            <div className="mb-4 h-2 w-1/5 rounded bg-ink/20" />
-            <div className="mb-2 h-1.5 w-full rounded bg-ink/8" />
-            <div className="mb-2 h-1.5 w-5/6 rounded bg-ink/8" />
-            <div className="mb-2 h-1.5 w-2/3 rounded bg-ink/8" />
-          </div>
-
-          <p className="relative z-10 mb-3 text-[13px] font-medium tracking-wide text-ink/55">
-            Our AI judges it like it&apos;s the final round of Squid Game for
-          </p>
-
-          <div className="relative z-10 mb-6 flex items-center justify-center gap-2">
-            {["M", "⌘", "A", "G", "N"].map((ch) => (
-              <div
-                key={ch}
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/80 bg-white/95 font-display text-xs font-bold text-ink/90 shadow-[0_4px_12px_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-lg"
-              >
-                {ch}
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="relative z-[5] mx-auto flex max-w-[520px] flex-1 flex-col items-center px-6 py-16 text-center md:py-24">
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="font-handwritten text-2xl text-pop md:text-3xl"
+        >
+          your resume has 30 seconds to live
+        </motion.p>
 
         <motion.h1
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="font-serif text-[clamp(2.4rem,5.5vw,4rem)] leading-[1.08] text-ink drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]"
+          transition={{ delay: 0.2 }}
+          className="mt-4 font-display text-[clamp(2rem,5vw,3.2rem)] font-bold leading-[1.1] tracking-tight text-ink"
         >
-          Your Resume Has 30s to Live.
-          <br />
-          <em className="text-[#1a3a6e]">Will It Pass FAANG Recruiter?</em>
+          Will it pass FAANG?
         </motion.h1>
 
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mt-10 w-full max-w-[420px]"
+          transition={{ delay: 0.35 }}
+          className="mt-12 w-full"
         >
-          <div
+          <motion.div
             ref={dropzoneRef}
             role="button"
             tabIndex={0}
             onClick={triggerUpload}
             onKeyDown={(e) => e.key === "Enter" && triggerUpload()}
+            onMouseEnter={() => setDropzoneHover(true)}
+            onMouseLeave={() => setDropzoneHover(false)}
             onDragOver={(e) => {
               e.preventDefault();
-              dropzoneRef.current?.classList.add("ring-2", "ring-ink/40");
+              dropzoneRef.current?.classList.add("ring-2", "ring-pop", "bg-pop-light");
+              setDropzoneHover(true);
             }}
-            onDragLeave={() => dropzoneRef.current?.classList.remove("ring-2", "ring-ink/40")}
+            onDragLeave={() => {
+              dropzoneRef.current?.classList.remove("ring-2", "ring-pop", "bg-pop-light");
+              setDropzoneHover(false);
+            }}
             onDrop={handleDrop}
-            className="cursor-pointer rounded-2xl border-2 border-dashed border-ink/15 bg-white/60 p-8 text-center shadow-sm backdrop-blur-md transition hover:border-ink/25 hover:bg-white/80"
+            className="relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-ink/10 bg-white p-10 text-center transition hover:border-pop/40 hover:bg-pop-light/50"
+            whileHover={{ scale: 1.01 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
           >
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-ink">
-              <svg width="22" height="22" viewBox="0 0 20 20" fill="none" className="text-white">
+            <motion.div
+              className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl shadow-[0_0_20px_rgba(224,64,251,0.5)]"
+              style={{ background: "linear-gradient(135deg, #e040fb 0%, #b044ff 100%)" }}
+              animate={dropzoneHover ? { scale: [1, 1.08, 1] } : {}}
+              transition={{ duration: 1.5, repeat: dropzoneHover ? Infinity : 0, repeatDelay: 0.5 }}
+            >
+              <svg width="24" height="24" viewBox="0 0 20 20" fill="none" className="text-white">
                 <path
                   d="M10 3v10M6 7l4-4 4 4M3 15h14"
                   stroke="currentColor"
-                  strokeWidth="1.8"
+                  strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </svg>
-            </div>
-            <p className="font-display text-[15px] font-bold text-ink">Drop your resume here</p>
-            <p className="mt-1 text-xs text-ink/50">
-              PDF or TXT — processed entirely in your browser
-            </p>
-          </div>
-          <button
+            </motion.div>
+            <p className="font-display text-base font-semibold text-ink">Drop your resume here</p>
+            <p className="mt-1 text-sm text-ink/50">PDF or TXT · processed in your browser</p>
+
+            {/* Checklist — appears on hover */}
+            <AnimatePresence>
+              {dropzoneHover && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-5 flex flex-wrap justify-center gap-x-6 gap-y-2"
+                >
+                  {CHECK_ITEMS.map((item, i) => (
+                    <motion.span
+                      key={item}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="flex items-center gap-2 text-xs font-medium text-ink/60"
+                    >
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", delay: 0.2 + i * 0.1, stiffness: 500 }}
+                        className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-green/20 text-accent-green"
+                      >
+                        <Check strokeWidth={3} size={12} />
+                      </motion.span>
+                      We check {item}
+                    </motion.span>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+          <motion.button
             type="button"
             onClick={triggerUpload}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-ink py-4 font-display text-sm font-bold text-white shadow-lg transition hover:bg-ink2 hover:-translate-y-0.5 hover:shadow-xl"
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl py-4 font-display text-base font-bold text-white shadow-[0_4px_20px_rgba(224,64,251,0.4)] transition-colors"
+            style={{ background: "linear-gradient(135deg, #e040fb 0%, #b044ff 100%)" }}
+            whileHover={{ y: -4, boxShadow: "0 8px 28px rgba(224,64,251,0.45)" }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
           >
-            <span className="text-base">↑</span> Upload Resume
-          </button>
-          <p className="mt-3 text-center text-[11px] italic text-ink/45">* no signup required</p>
+            <span className="text-lg">↑</span> Upload Resume
+          </motion.button>
+          <p className="mt-4 text-xs text-ink/40">No signup required</p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-14 pb-8 text-center"
-        >
-          <p className="text-[14px] font-bold text-ink">#1 AI Resume Roaster ★★★★★</p>
-          <p className="mt-2 text-xs text-ink/50">
-            Trusted by 1,000+ students from Berkeley, Harvard, MIT, Stanford, Georgia Tech
-          </p>
-        </motion.div>
       </div>
 
       {extracting && (
         <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-ink/50 backdrop-blur-md">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          <div
+            className="h-10 w-10 animate-spin rounded-full border-2 border-white/30"
+            style={{ borderTopColor: "#e040fb" }}
+          />
           <p className="mt-4 font-serif text-xl text-white md:text-2xl">
             Extracting text & layout...
           </p>
@@ -279,7 +360,8 @@ export default function LandingPage() {
               </button>
               <button
                 type="button"
-                className="rounded-xl bg-ink px-5 py-2.5 font-display text-sm font-bold text-white transition hover:bg-ink2"
+                className="rounded-xl px-5 py-2.5 font-display text-sm font-bold text-white transition hover:opacity-90"
+                style={{ background: "linear-gradient(135deg, #e040fb 0%, #b044ff 100%)" }}
                 onClick={() => router.push("/results")}
               >
                 Looks good? Continue

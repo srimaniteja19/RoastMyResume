@@ -23,7 +23,7 @@ export function CompanyTabs({ value, onChange, loadingCompany }: Props) {
             type="button"
             disabled={loading}
             className={`whitespace-nowrap border-b-2.5 border-transparent px-6 py-4 font-display text-xs font-bold tracking-wider transition ${
-              active ? "border-ink text-ink" : "text-[rgba(26,26,46,0.5)] hover:text-ink"
+              active ? "border-[#b044ff] text-[#b044ff]" : "text-[rgba(26,26,46,0.5)] hover:text-[#b044ff]/70"
             } ${loading ? "opacity-60" : ""}`}
             onClick={() => onChange(company)}
           >
